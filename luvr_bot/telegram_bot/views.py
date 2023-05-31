@@ -1,7 +1,8 @@
 import datetime
 import os
+import sys
 
-from telegram import Bot, KeyboardButton, ReplyKeyboardMarkup
+from telegram import KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
@@ -12,8 +13,6 @@ from django.db.models import Q
 load_dotenv()
 
 token = os.getenv('TELEGRAM_TOKEN')
-bot = Bot(token=token)
-
 updater = Updater(token)
 
 
@@ -29,6 +28,7 @@ def main_func(update, context):
         return
 
     if has_contact_in_message:
+
         phone_number = update.message.contact.phone_number
         if Employee.objects.filter(phone_number=phone_number).exists():
             employee = Employee.objects.get(phone_number=phone_number)
@@ -137,14 +137,15 @@ def start(update, context):
     chat = update.effective_chat
     name = update.message.chat.first_name
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-
     main_func(update, context)
 
 
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, main_func))
-updater.dispatcher.add_handler(MessageHandler(Filters.contact, main_func))
-updater.dispatcher.add_handler(MessageHandler(Filters.location, main_func))
-updater.start_polling()
-# updater.idle()
+command = " ".join(sys.argv[:])
+if 'runserver' in command:
+    updater.dispatcher.add_handler(CommandHandler('start', start))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, main_func))
+    updater.dispatcher.add_handler(MessageHandler(Filters.contact, main_func))
+    updater.dispatcher.add_handler(MessageHandler(Filters.location, main_func))
+    updater.start_polling()
+    # updater.idle()
 
