@@ -131,6 +131,7 @@ class JobRequestAssignment(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='assignments',
                                  verbose_name='сотрудник')
     assignment_date = models.DateTimeField(auto_now=True, verbose_name='дата назначения')
+    last_notified_date = models.DateField(blank=True, null=True, verbose_name='дата последнего уведомления')
 
     class Meta:
         verbose_name = 'Назначение сотрудников'

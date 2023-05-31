@@ -36,7 +36,7 @@ class JobRequestAdmin(admin.ModelAdmin):
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('job_request', 'employee', 'status', 'assignment_date')
+    list_display = ('job_request', 'employee', 'status', 'assignment_date', 'last_notified_date')
     inlines = [ShiftInline]
 
 
