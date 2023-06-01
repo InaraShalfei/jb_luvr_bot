@@ -39,8 +39,9 @@ def send_shifts_start_soon_reminder():
 
 def send_shifts_start_15_min_ago_reminder():
     today = datetime.datetime.today()
-    # TODO filter by last_notification_date = today
-    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(last_notification_status=constants.STATUS_30_MIN_REM_SHIFT_START))
+    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) &
+                                             Q(last_notification_status=constants.STATUS_30_MIN_REM_SHIFT_START) &
+                                             Q(last_notified_date=today))
     for job_request in job_requests:
         shift_start = datetime.datetime.combine(today, job_request.shift_time_start)
         if (datetime.datetime.now() - shift_start).total_seconds() >= 15 * 60:
@@ -63,9 +64,9 @@ def send_shifts_start_15_min_ago_reminder():
 
 def send_shifts_end_reminder():
     today = datetime.datetime.today()
-    # TODO filter by last_notification_date = today
-    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(
-        last_notification_status=constants.STATUS_15_MIN_SHIFT_START_ABS))
+    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) &
+                                             Q(last_notification_status=constants.STATUS_15_MIN_SHIFT_START_ABS) &
+                                             Q(last_notified_date=today))
     for job_request in job_requests:
         shift_end = datetime.datetime.combine(today, job_request.shift_time_end)
         if (datetime.datetime.now() - shift_end).total_seconds() >= 0:
@@ -90,9 +91,9 @@ def send_shifts_end_reminder():
 
 def send_shifts_end_15_min_ago_reminder():
     today = datetime.datetime.today()
-    # TODO filter by last_notification_date = today
-    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(
-        last_notification_status=constants.STATUS_REM_SHIFT_END))
+    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) &
+                                             Q(last_notification_status=constants.STATUS_REM_SHIFT_END) &
+                                             Q(last_notified_date=today))
     for job_request in job_requests:
         shift_end = datetime.datetime.combine(today, job_request.shift_time_end)
         if (datetime.datetime.now() - shift_end).total_seconds() >= 15:
