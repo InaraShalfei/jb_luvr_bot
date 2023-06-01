@@ -117,8 +117,10 @@ class JobRequest(models.Model):
     def readable_broadcast(self):
         date_start = datetime.datetime.strftime(self.date_start, '%d.%m.%Y')
         date_end = datetime.datetime.strftime(self.date_end, '%d.%m.%Y')
+        time_start = datetime.time.strftime(self.shift_time_start, '%H:%M')
+        time_end = datetime.time.strftime(self.shift_time_end, '%H:%M')
 
-        return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{self.shift_time_start} - {self.shift_time_end}<br>'
+        return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{time_start} - {time_end}<br>'
                            f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
 
     def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
