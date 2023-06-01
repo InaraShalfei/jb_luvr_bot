@@ -1,6 +1,7 @@
 import datetime
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
+from django.utils.html import format_html
 
 from django.db import models
 from django.contrib import admin
@@ -73,7 +74,7 @@ class Branch(models.Model):
         verbose_name_plural = 'Филиалы'
 
     def __str__(self):
-        return self.branch_name
+        return f'{self.branch_name} {self.address}'
 
 
 class JobRequest(models.Model):
@@ -111,6 +112,14 @@ class JobRequest(models.Model):
     def readable_notification_status(self):
         return statuses_dict[self.last_notification_status] if self.last_notification_status \
                                                                in statuses_dict else self.last_notification_status
+
+    @admin.display(description='Рассылка')
+    def readable_broadcast(self):
+        date_start = datetime.datetime.strftime(self.date_start, '%d.%m.%Y')
+        date_end = datetime.datetime.strftime(self.date_end, '%d.%m.%Y')
+
+        return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{self.shift_time_start} - {self.shift_time_end}<br>'
+                           f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
 
     def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
         dates = []
