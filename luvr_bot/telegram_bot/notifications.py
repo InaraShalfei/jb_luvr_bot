@@ -12,7 +12,7 @@ token = os.getenv('TELEGRAM_TOKEN')
 bot = Bot(token=token)
 
 
-def send_shifts_start_soon_reminders():
+def send_shifts_start_soon_reminder():
     today = datetime.datetime.today()
     job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) &
                                              (Q(last_notified_date__lt=today) | Q(last_notified_date__isnull=True)))
@@ -37,7 +37,7 @@ def send_shifts_start_soon_reminders():
         job_request.save()
 
 
-def send_shifts_start_15_min_ago():
+def send_shifts_start_15_min_ago_reminder():
     today = datetime.datetime.today()
     job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(last_notification_status=constants.STATUS_30_MIN_REM_SHIFT_START))
     for job_request in job_requests:
@@ -86,7 +86,7 @@ def send_shifts_end_reminder():
         job_request.save()
 
 
-def send_shifts_end_15_min_ago():
+def send_shifts_end_15_min_ago_reminder():
     today = datetime.datetime.today()
     job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(
         last_notification_status=constants.STATUS_REM_SHIFT_END))
