@@ -149,6 +149,12 @@ class JobRequestAssignment(models.Model):
         date_str = datetime.datetime.strftime(self.assignment_date, '%d.%m.%Y %H:%M')
         return f'Назначение от {date_str}'
 
+    def get_shift_for_date(self, date):
+        for shift in self.shifts.all():
+            if shift.shift_date == date:
+                return shift
+        return None
+
 
 class Shift(models.Model):
     start_position = models.ForeignKey(EmployeeGeoPosition, on_delete=models.CASCADE, blank=True, null=True,
