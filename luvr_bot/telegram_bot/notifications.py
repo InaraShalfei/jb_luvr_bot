@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from . import constants
 from .models import JobRequest
 from django.db.models import Q
 from dotenv import load_dotenv
@@ -29,14 +30,15 @@ def send_shifts_start_soon_reminders():
 
 def send_shifts_start_15_min_ago():
     today = datetime.datetime.today()
-    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today))
+    job_requests = JobRequest.objects.filter(Q(date_start__lte=today) & Q(date_end__gte=today) & Q(last_notification_status=constants.STATUS_30_MIN_REM_SHIFT_START))
     for job_request in job_requests:
         shift_start = datetime.datetime.combine(job_request.date_start, job_request.shift_time_start)
         if (datetime.datetime.now() - shift_start).total_seconds() >= 15 * 60:
             for assignment in job_request.assignments.all():
                 if assignment.shift.start_position is None and (assignment.last_notified_date is None
                                                                 or assignment.last_notified_date < today) and assignment.employee.chat_id:
-                    assignment.last_notified_date = today
-                    assignment.save()
+                    job_request.last_notified_date = today
+                    job_request.last_notification_status = constants.STATUS_15_MIN_SHIFT_START_ABS
+                    job_request.save()
                     bot.send_message(chat_id=assignment.employee.chat_id,
                                      text=f'Ваша смена началась 15 минут назад.\nНеобходимо отправить геоданные о Приходе')
