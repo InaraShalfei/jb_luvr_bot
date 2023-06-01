@@ -49,7 +49,7 @@ def send_shifts_start_15_min_ago():
                     if assignment.employee.chat_id and (shift_for_today is None or shift_for_today.start_position is None):
                         location_button = KeyboardButton(text='Начать смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена началась 15 минут назад.\nНеобходимо отправить геоданные о Приходе',
+                                         text=f'Ваша смена началась более 15 минут назад.\nНеобходимо отправить геоданные о Приходе',
                                          reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
                                                                           resize_keyboard=True
                                                                           ))
@@ -72,9 +72,10 @@ def send_shifts_end_reminder():
                     shift_for_today = assignment.get_shift_for_date(today)
                     if assignment.employee.chat_id and (
                             shift_for_today is None or shift_for_today.end_position is None):
+                        time_end_str = datetime.datetime.strftime(shift_end, '%H:%M')
                         location_button = KeyboardButton(text='Закончить смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена закончилась.\nНе забудьте отправить геоданные об Уходе',
+                                         text=f'Ваша смена закончилась в {time_end_str}.\nНе забудьте отправить геоданные об Уходе',
                                          reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
                                                                           resize_keyboard=True
                                                                           ))
@@ -99,7 +100,7 @@ def send_shifts_end_15_min_ago():
                             shift_for_today is None or shift_for_today.end_position is None):
                         location_button = KeyboardButton(text='Закончить смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена закончилась 15 минут назад.\nНеобходимо отправить геоданные об Уходе',
+                                         text=f'Ваша смена закончилась более 15 минут назад.\nНеобходимо отправить геоданные об Уходе',
                                          reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
                                                                           resize_keyboard=True
                                                                           ))
