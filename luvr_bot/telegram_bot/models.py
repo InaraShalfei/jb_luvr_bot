@@ -95,7 +95,6 @@ class JobRequest(models.Model):
     shift_time_end = models.TimeField(blank=True, null=True, verbose_name='время окончания смены')
     number_of_employees = models.CharField(max_length=3, blank=True, null=True, verbose_name='количество сотрудников')
     request_comment = models.TextField(blank=True, null=True, verbose_name='комментарий')
-    message_text = models.TextField(blank=True, null=True, verbose_name='текст рассылки')
     request_date = models.DateTimeField(auto_now=True, verbose_name='дата заявки')
     last_notified_date = models.DateField(blank=True, null=True, verbose_name='дата последнего уведомления')
     last_notification_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус уведомления')
