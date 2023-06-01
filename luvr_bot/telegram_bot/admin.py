@@ -31,12 +31,12 @@ class BranchAdmin(admin.ModelAdmin):
 class JobRequestAdmin(admin.ModelAdmin):
     list_display = ('branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
                     'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'status', 'message_text',
-                    'request_date', 'last_notified_date')
+                    'request_date', 'last_notified_date', 'readable_notification_status')
     inlines = [JobRequestAssignmentInline]
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('job_request', 'employee', 'status', 'assignment_date', 'last_notified_date')
+    list_display = ('job_request', 'employee', 'status', 'assignment_date', )
     inlines = [ShiftInline]
 
 

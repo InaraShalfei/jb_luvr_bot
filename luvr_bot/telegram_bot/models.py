@@ -3,6 +3,9 @@ from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 
 from django.db import models
+from django.contrib import admin
+
+from .constants import statuses_dict
 
 
 class CustomUser(AbstractUser):
@@ -95,6 +98,7 @@ class JobRequest(models.Model):
     message_text = models.TextField(blank=True, null=True, verbose_name='текст рассылки')
     request_date = models.DateTimeField(auto_now=True, verbose_name='дата заявки')
     last_notified_date = models.DateField(blank=True, null=True, verbose_name='дата последнего уведомления')
+    last_notification_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус уведомления')
 
     class Meta:
         verbose_name = 'Заявка на сотрудников'
@@ -103,6 +107,11 @@ class JobRequest(models.Model):
     def __str__(self):
         date_str = datetime.datetime.strftime(self.request_date, '%d.%m.%Y %H:%M')
         return f'Заявка от {date_str}'
+
+    @admin.display(description='Статус')
+    def readable_notification_status(self):
+        return statuses_dict[self.last_notification_status] if self.last_notification_status \
+                                                               in statuses_dict else self.last_notification_status
 
     def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
         dates = []
@@ -131,7 +140,6 @@ class JobRequestAssignment(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='assignments',
                                  verbose_name='сотрудник')
     assignment_date = models.DateTimeField(auto_now=True, verbose_name='дата назначения')
-    last_notified_date = models.DateField(blank=True, null=True, verbose_name='дата последнего уведомления')
 
     class Meta:
         verbose_name = 'Назначение сотрудников'
