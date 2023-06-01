@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser
+from django.contrib.auth.admin import UserAdmin
 
 
 class JobRequestAssignmentInline(admin.TabularInline):
@@ -34,6 +35,12 @@ class JobRequestAdmin(admin.ModelAdmin):
                     'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
 
+    def save_model(self, request, obj, form, change):
+        if request.user.is_superuser or 'Распределитель' in request.user.groups or obj.branch.company == request.user.company:
+            super(JobRequestAdmin, self).save_model(request, obj, form, change)
+        else:
+            raise Exception('У Вас нет прав на это действие')
+
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
     list_display = ('job_request', 'employee', 'status', 'assignment_date', )
@@ -57,4 +64,4 @@ admin.site.register(JobRequestAssignment, JobRequestAssignmentAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(Company, CompanyAdmin)
 
-admin.site.register(CustomUser)
+admin.site.register(CustomUser, UserAdmin)
