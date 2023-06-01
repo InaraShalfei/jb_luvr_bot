@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company
+from import_export.admin import ExportActionMixin
+from import_export.resources import ModelResource
 
 
 class JobRequestAssignmentInline(admin.TabularInline):
@@ -28,11 +30,29 @@ class BranchAdmin(admin.ModelAdmin):
     list_display = ('branch_name', 'latitude', 'longitude', 'address', 'company')
 
 
-class JobRequestAdmin(admin.ModelAdmin):
+class JobRequestModelResource(ModelResource):
+    class Meta:
+        model = JobRequest
+        exclude = ('id', )
+        fields = ('branch__branch_name', 'branch__address', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
+                  'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'status', 'request_date',
+                  'readable_broadcast')
+
+    def get_export_headers(self):
+        headers = []
+        for field in self.get_fields():
+            model_fields = self.Meta.model._meta.get_fields()
+            header = next((x.verbose_name for x in model_fields if x.name == field.column_name), field.column_name)
+            headers.append(header)
+        return headers
+
+
+class JobRequestAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
                     'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'status', 'request_date',
                     'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
+    resource_class = JobRequestModelResource
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
