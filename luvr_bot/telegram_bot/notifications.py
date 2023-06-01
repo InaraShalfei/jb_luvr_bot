@@ -5,7 +5,7 @@ from . import constants
 from .models import JobRequest
 from django.db.models import Q
 from dotenv import load_dotenv
-from telegram import Bot
+from telegram import Bot, KeyboardButton, ReplyKeyboardMarkup
 
 load_dotenv()
 token = os.getenv('TELEGRAM_TOKEN')
@@ -24,9 +24,12 @@ def send_shifts_start_soon_reminders():
                     shift_for_today = assignment.get_shift_for_date(today)
                     if assignment.employee.chat_id and (shift_for_today is None or shift_for_today.start_position is None):
                         time_start_str = datetime.datetime.strftime(shift_start, '%H:%M')
-                        # TODO add keybutton
+                        location_button = KeyboardButton(text='Начать смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена начнется в {time_start_str}.\nНе забудьте отметиться')
+                                         text=f'Ваша смена начнется в {time_start_str}.\nНе забудьте отметиться',
+                                         reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
+                                                                          resize_keyboard=True
+                                                                          ))
                 except:
                     pass
         job_request.last_notified_date = today
@@ -44,11 +47,12 @@ def send_shifts_start_15_min_ago():
                 try:
                     shift_for_today = assignment.get_shift_for_date(today)
                     if assignment.employee.chat_id and (shift_for_today is None or shift_for_today.start_position is None):
-
-                        # TODO add keybutton
-
+                        location_button = KeyboardButton(text='Начать смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена началась 15 минут назад.\nНеобходимо отправить геоданные о Приходе')
+                                         text=f'Ваша смена началась 15 минут назад.\nНеобходимо отправить геоданные о Приходе',
+                                         reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
+                                                                          resize_keyboard=True
+                                                                          ))
                 except:
                     pass
         job_request.last_notified_date = today
@@ -68,10 +72,12 @@ def send_shifts_end_reminder():
                     shift_for_today = assignment.get_shift_for_date(today)
                     if assignment.employee.chat_id and (
                             shift_for_today is None or shift_for_today.end_position is None):
-                        # TODO add keybutton
-
+                        location_button = KeyboardButton(text='Закончить смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена закончилась.\nНе забудьте отправить геоданные об Уходе')
+                                         text=f'Ваша смена закончилась.\nНе забудьте отправить геоданные об Уходе',
+                                         reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
+                                                                          resize_keyboard=True
+                                                                          ))
                 except:
                     pass
         job_request.last_notified_date = today
@@ -91,10 +97,12 @@ def send_shifts_end_15_min_ago():
                     shift_for_today = assignment.get_shift_for_date(today)
                     if assignment.employee.chat_id and (
                             shift_for_today is None or shift_for_today.end_position is None):
-                        # TODO add keybutton
-
+                        location_button = KeyboardButton(text='Закончить смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена закончилась 15 минут назад.\nНеобходимо отправить геоданные об Уходе')
+                                         text=f'Ваша смена закончилась 15 минут назад.\nНеобходимо отправить геоданные об Уходе',
+                                         reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
+                                                                          resize_keyboard=True
+                                                                          ))
                 except:
                     pass
         job_request.last_notified_date = today
