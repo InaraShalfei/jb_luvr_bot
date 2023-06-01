@@ -9,19 +9,6 @@ from django.contrib import admin
 from .constants import statuses_dict
 
 
-class CustomUser(AbstractUser):
-    ADMIN = 1
-    CHAIN_MANAGER = 2
-    BRANCH_MANAGER = 3
-
-    ROLE_CHOICES = (
-        (ADMIN, 'Admin'),
-        (BRANCH_MANAGER, 'Branch manager'),
-        (CHAIN_MANAGER, 'Chain manager')
-    )
-    role = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, blank=True, null=True)
-
-
 class Employee(models.Model):
     phone_number = models.CharField(max_length=250, verbose_name='номер телефона')
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
@@ -182,3 +169,7 @@ class Shift(models.Model):
     def __str__(self):
         date_str = datetime.datetime.strftime(self.shift_date, '%d.%m.%Y %H:%M')
         return f'Смена от {date_str}'
+
+
+class CustomUser(AbstractUser):
+    user_company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True, verbose_name='компания пользователя')

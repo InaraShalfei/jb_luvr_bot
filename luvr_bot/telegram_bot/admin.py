@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company
+from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser
 
 
 class JobRequestAssignmentInline(admin.TabularInline):
@@ -56,4 +56,5 @@ admin.site.register(JobRequest, JobRequestAdmin)
 admin.site.register(JobRequestAssignment, JobRequestAssignmentAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(Company, CompanyAdmin)
-# admin.site.register(CustomUser)
+
+admin.site.register(CustomUser)
