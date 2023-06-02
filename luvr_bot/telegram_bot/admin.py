@@ -56,6 +56,10 @@ class CompanyAdmin(admin.ModelAdmin):
     inlines = [BranchInline]
 
 
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_company')
+
+
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(EmployeeGeoPosition, EmployeeGeoPositionAdmin)
 admin.site.register(Branch, BranchAdmin)
@@ -64,4 +68,4 @@ admin.site.register(JobRequestAssignment, JobRequestAssignmentAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(Company, CompanyAdmin)
 
-admin.site.register(CustomUser, UserAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)
