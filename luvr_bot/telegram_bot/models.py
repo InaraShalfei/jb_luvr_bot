@@ -173,3 +173,6 @@ class Shift(models.Model):
 
 class CustomUser(AbstractUser):
     user_company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True, verbose_name='компания пользователя')
+
+    def has_group(self, group_name):
+        return self.groups.filter(name=group_name).exists()
