@@ -36,8 +36,8 @@ class BranchAdmin(admin.ModelAdmin):
 
 
 class JobRequestAdmin(admin.ModelAdmin):
-    list_display = ('branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
-                    'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'status', 'request_date',
+    list_display = ('branch', 'employee_position', 'request_type', 'INN', 'employee_full_name', 'personalized_request', 'date_start', 'date_end', 'shift_time_start',
+                    'shift_time_end', 'number_of_employees', 'request_comment', 'status', 'request_date',
                     'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
 
@@ -56,7 +56,7 @@ class JobRequestAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if request.user.has_group('Distributor'):
             return ['branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
-                    'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'request_date',
+                    'shift_time_end', 'number_of_employees', 'request_comment', 'request_date',
                     'readable_broadcast']
         return ['status']
 

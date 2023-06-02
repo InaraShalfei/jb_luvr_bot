@@ -73,8 +73,9 @@ class JobRequest(models.Model):
         ('NEW', 'Новая')
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='job_requests', verbose_name='филиал')
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='job_requests', verbose_name='сотрудник',
-                                 blank=True, null=True)
+    personalized_request = models.BooleanField(blank=True, null=True, default=False, verbose_name='именная заявка')
+    employee_full_name = models.CharField(max_length=300, blank=True, null=True, verbose_name='ФИО сотрудника')
+    INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус заявки',
                               default='NEW')
     employee_position = models.CharField(blank=True, null=True, max_length=300, verbose_name='должность')
