@@ -35,11 +35,17 @@ class JobRequestAdmin(admin.ModelAdmin):
                     'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
 
-    def save_model(self, request, obj, form, change):
-        if request.user.is_superuser or 'Распределитель' in request.user.groups or obj.branch.company == request.user.company:
+    def save_model(self, request, obj: JobRequest, form, change):
+        if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager') and obj.branch.company == request.user.user_company):
             super(JobRequestAdmin, self).save_model(request, obj, form, change)
         else:
             raise Exception('У Вас нет прав на это действие')
+
+    def get_queryset(self, request):
+        qs = super(JobRequestAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(branch__company=request.user.user_company)
+        return qs
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
