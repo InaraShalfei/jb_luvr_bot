@@ -69,12 +69,14 @@ class JobRequest(models.Model):
         ('APPROVED', 'Принята'),
         ('REJECTED', 'Отклонена'),
         ('CANCELED', 'Отменена'),
-        ('CLOSED', 'Закрыта')
+        ('CLOSED', 'Закрыта'),
+        ('NEW', 'Новая')
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='job_requests', verbose_name='филиал')
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='job_requests', verbose_name='сотрудник',
                                  blank=True, null=True)
-    status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус заявки')
+    status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус заявки',
+                              default='NEW')
     employee_position = models.CharField(blank=True, null=True, max_length=300, verbose_name='должность')
     request_type = models.CharField(blank=True, null=True, max_length=250, verbose_name='тип заявки')
     date_start = models.DateField(blank=True, null=True, verbose_name='дата начала периода')
