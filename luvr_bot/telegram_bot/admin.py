@@ -28,6 +28,12 @@ class EmployeeGeoPositionAdmin(admin.ModelAdmin):
 class BranchAdmin(admin.ModelAdmin):
     list_display = ('branch_name', 'latitude', 'longitude', 'address', 'company')
 
+    def get_queryset(self, request):
+        qs = super(BranchAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(company=request.user.user_company)
+        return qs
+
 
 class JobRequestAdmin(admin.ModelAdmin):
     list_display = ('branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
@@ -52,14 +58,51 @@ class JobRequestAssignmentAdmin(admin.ModelAdmin):
     list_display = ('job_request', 'employee', 'status', 'assignment_date', )
     inlines = [ShiftInline]
 
+    def save_model(self, request, obj: JobRequestAssignment, form, change):
+        if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager') and obj.job_request.branch.company == request.user.user_company):
+            super(JobRequestAssignmentAdmin, self).save_model(request, obj, form, change)
+        else:
+            raise Exception('У Вас нет прав на это действие')
+
+    def get_queryset(self, request):
+        qs = super(JobRequestAssignmentAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(job_request__branch__company=request.user.user_company)
+        return qs
+
 
 class ShiftAdmin(admin.ModelAdmin):
     list_display = ('assignment', 'start_position', 'end_position', 'shift_date')
+
+    def save_model(self, request, obj: Shift, form, change):
+        if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager')
+                                                                                  and obj.assignment.job_request.branch.company == request.user.user_company):
+            super(ShiftAdmin, self).save_model(request, obj, form, change)
+        else:
+            raise Exception('У Вас нет прав на это действие')
+
+    def get_queryset(self, request):
+        qs = super(ShiftAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(assignment__job_request__branch__company=request.user.user_company)
+        return qs
 
 
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ('name', )
     inlines = [BranchInline]
+
+    def save_model(self, request, obj: Company, form, change):
+        if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager') and obj.name == request.user.user_company):
+            super(CompanyAdmin, self).save_model(request, obj, form, change)
+        else:
+            raise Exception('У Вас нет прав на это действие')
+
+    def get_queryset(self, request):
+        qs = super(CompanyAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(name=request.user.user_company)
+        return qs
 
 
 class CustomUserAdmin(admin.ModelAdmin):
