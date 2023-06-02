@@ -53,6 +53,13 @@ class JobRequestAdmin(admin.ModelAdmin):
             return qs.filter(branch__company=request.user.user_company)
         return qs
 
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.has_group('Distributor'):
+            return ['branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
+                    'shift_time_end', 'number_of_employees', 'request_comment', 'employee', 'request_date',
+                    'readable_broadcast']
+        return ['status']
+
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
     list_display = ('job_request', 'employee', 'status', 'assignment_date', )
