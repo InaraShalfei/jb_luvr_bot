@@ -19,10 +19,12 @@ class BranchInline(admin.TabularInline):
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'chat_id', 'INN', 'full_name',)
     inlines = [JobRequestAssignmentInline]
+    readonly_fields = ['chat_id']
 
 
 class EmployeeGeoPositionAdmin(admin.ModelAdmin):
     list_display = ('employee', 'latitude', 'longitude', 'geo_positions_date',)
+    readonly_fields = ['latitude', 'longitude', 'geo_positions_date']
 
 
 class BranchAdmin(admin.ModelAdmin):
@@ -80,6 +82,7 @@ class JobRequestAssignmentAdmin(admin.ModelAdmin):
 
 class ShiftAdmin(admin.ModelAdmin):
     list_display = ('assignment', 'start_position', 'end_position', 'shift_date')
+    readonly_fields = ['start_position', 'end_position']
 
     def save_model(self, request, obj: Shift, form, change):
         if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager')
