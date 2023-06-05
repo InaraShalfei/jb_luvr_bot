@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'telegram_bot',
+    'import_export'
+
 ]
 
 MIDDLEWARE = [
