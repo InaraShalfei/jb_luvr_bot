@@ -103,16 +103,16 @@ class ShiftAdmin(admin.ModelAdmin):
 
 
 class ProxyShiftModelResource(ModelResource):
-    employee = Field(attribute='Сотрудник')
-    position = Field(attribute='Функция')
-    INN = Field(attribute='ИНН')
-    company = Field(attribute='Контрагент')
-    branch = Field(attribute='Организация')
-    planned_shift_start = Field(attribute='Плановое начало смены')
-    planned_shift_end = Field(attribute='Плановое окончание смены')
-    actual_shift_start = Field(attribute='Отметка на приход')
-    actual_shift_end = Field(attribute='Отметка на уход')
-    date = Field(attribute='Дата табеля')
+    employee = Field(attribute='Сотрудник', column_name='Сотрудник')
+    position = Field(attribute='Функция', column_name='Функция')
+    INN = Field(attribute='ИИН', column_name='ИИН')
+    company = Field(attribute='Контрагент', column_name='Контрагент')
+    branch = Field(attribute='Организация', column_name='Организация')
+    planned_shift_start = Field(attribute='Плановое начало смены', column_name='Плановое начало смены')
+    planned_shift_end = Field(attribute='Плановое окончание смены', column_name='Плановое окончание смены')
+    actual_shift_start = Field(attribute='Отметка на приход', column_name='Отметка на приход')
+    actual_shift_end = Field(attribute='Отметка на уход', column_name='Отметка на уход')
+    date = Field(attribute='Дата табеля', column_name='Дата табеля')
 
     def dehydrate_employee(self, shift):
         return shift.readable_employee()
@@ -141,7 +141,7 @@ class ProxyShiftModelResource(ModelResource):
     def dehydrate_actual_shift_end(self, shift):
         return shift.readable_actual_shift_end()
 
-    def dehydrate_actual_shift_date(self, shift):
+    def dehydrate_shift_date(self, shift):
         return shift.readable_date()
 
     class Meta:
