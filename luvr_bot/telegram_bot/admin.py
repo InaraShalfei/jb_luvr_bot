@@ -1,4 +1,8 @@
 from django.contrib import admin
+from import_export.admin import ExportActionMixin
+from import_export.resources import ModelResource
+from import_export.fields import Field
+
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser, \
     ProxyShift
@@ -98,10 +102,61 @@ class ShiftAdmin(admin.ModelAdmin):
         return qs
 
 
-class ProxyShiftAdmin(admin.ModelAdmin):
+class ProxyShiftModelResource(ModelResource):
+    employee = Field(attribute='Сотрудник')
+    position = Field(attribute='Функция')
+    INN = Field(attribute='ИНН')
+    company = Field(attribute='Контрагент')
+    branch = Field(attribute='Организация')
+    planned_shift_start = Field(attribute='Плановое начало смены')
+    planned_shift_end = Field(attribute='Плановое окончание смены')
+    actual_shift_start = Field(attribute='Отметка на приход')
+    actual_shift_end = Field(attribute='Отметка на уход')
+    date = Field(attribute='Дата табеля')
+
+    def dehydrate_employee(self, shift):
+        return shift.readable_employee()
+
+    def dehydrate_position(self, shift):
+        return shift.readable_position()
+
+    def dehydrate_inn(self, shift):
+        return shift.readable_inn()
+
+    def dehydrate_company(self, shift):
+        return shift.readable_company()
+
+    def dehydrate_branch(self, shift):
+        return shift.readable_branch()
+
+    def dehydrate_planned_shift_start(self, shift):
+        return shift.readable_planned_shift_start()
+
+    def dehydrate_planned_shift_end(self, shift):
+        return shift.readable_planned_shift_end()
+
+    def dehydrate_actual_shift_start(self, shift):
+        return shift.readable_actual_shift_start()
+
+    def dehydrate_actual_shift_end(self, shift):
+        return shift.readable_actual_shift_end()
+
+    def dehydrate_actual_shift_date(self, shift):
+        return shift.readable_date()
+
+    class Meta:
+        model = ProxyShift
+        exclude = ('id', )
+        fields = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company',
+                  'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
+                  'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date',)
+
+
+class ProxyShiftAdmin(ExportActionMixin, admin.ModelAdmin):
     list_display = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company',
                     'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
                     'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date', )
+    resource_class = ProxyShiftModelResource
 
 
 class CompanyAdmin(admin.ModelAdmin):
