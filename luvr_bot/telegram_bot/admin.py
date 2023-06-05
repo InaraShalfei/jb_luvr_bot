@@ -99,8 +99,9 @@ class ShiftAdmin(admin.ModelAdmin):
 
 
 class ProxyShiftAdmin(admin.ModelAdmin):
-    list_display = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company', 'readable_branch',
-                    'readable_date')
+    list_display = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company',
+                    'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
+                    'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date', )
 
 
 class CompanyAdmin(admin.ModelAdmin):

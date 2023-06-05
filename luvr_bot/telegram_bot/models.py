@@ -1,4 +1,6 @@
 import datetime
+import pytz
+
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.utils.html import format_html
@@ -203,6 +205,35 @@ class ProxyShift(Shift):
     @admin.display(description='дата табеля')
     def readable_date(self):
         return self.shift_date
+
+    @admin.display(description='плановое начало смены')
+    def readable_planned_shift_start(self):
+        return self.assignment.job_request.shift_time_start
+
+    @admin.display(description='плановое окончание смены')
+    def readable_planned_shift_end(self):
+        return self.assignment.job_request.shift_time_end
+
+    @admin.display(description='отметка на приход')
+    def readable_actual_shift_start(self):
+        planned_time = self.assignment.job_request.shift_time_start
+        if self.start_position:
+            actual_time = (self.start_position.geo_positions_date + timedelta(hours=6)).time()
+            max_start_time = max(planned_time, actual_time)
+        else:
+            max_start_time = ''
+        return max_start_time
+
+    @admin.display(description='отметка на уход')
+    def readable_actual_shift_end(self):
+        planned_time = self.assignment.job_request.shift_time_end
+        if self.end_position:
+            actual_time = (self.end_position.geo_positions_date + timedelta(hours=6)).time()
+            min_end_time = min(planned_time, actual_time)
+        else:
+            min_end_time = ''
+        return min_end_time
+
 
 
 class CustomUser(AbstractUser):
