@@ -174,6 +174,37 @@ class Shift(models.Model):
         return f'Смена от {date_str}'
 
 
+class ProxyShift(Shift):
+    class Meta:
+        proxy = True
+        verbose_name = 'Отчет'
+        verbose_name_plural = 'Отчет'
+
+    @admin.display(description='сотрудник')
+    def readable_employee(self):
+        return self.assignment.employee.full_name
+
+    @admin.display(description='ИИН')
+    def readable_inn(self):
+        return self.assignment.employee.INN
+
+    @admin.display(description='функция')
+    def readable_position(self):
+        return self.assignment.job_request.employee_position
+
+    @admin.display(description='контрагент')
+    def readable_company(self):
+        return self.assignment.job_request.branch.company
+
+    @admin.display(description='организация')
+    def readable_branch(self):
+        return self.assignment.job_request.branch
+
+    @admin.display(description='дата табеля')
+    def readable_date(self):
+        return self.shift_date
+
+
 class CustomUser(AbstractUser):
     user_company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True, null=True, verbose_name='компания пользователя')
 

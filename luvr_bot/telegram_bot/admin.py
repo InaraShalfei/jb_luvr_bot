@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser
-from django.contrib.auth.admin import UserAdmin
+from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser, \
+    ProxyShift
 
 
 class JobRequestAssignmentInline(admin.TabularInline):
@@ -98,6 +98,11 @@ class ShiftAdmin(admin.ModelAdmin):
         return qs
 
 
+class ProxyShiftAdmin(admin.ModelAdmin):
+    list_display = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company', 'readable_branch',
+                    'readable_date')
+
+
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ('name', )
     inlines = [BranchInline]
@@ -126,5 +131,5 @@ admin.site.register(JobRequest, JobRequestAdmin)
 admin.site.register(JobRequestAssignment, JobRequestAssignmentAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(Company, CompanyAdmin)
-
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(ProxyShift, ProxyShiftAdmin)
