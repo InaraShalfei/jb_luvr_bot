@@ -38,9 +38,9 @@ class BranchAdmin(admin.ModelAdmin):
 
 
 class JobRequestAdmin(admin.ModelAdmin):
-    list_display = ('branch', 'employee_position', 'request_type', 'INN', 'employee_full_name', 'personalized_request', 'date_start', 'date_end', 'shift_time_start',
-                    'shift_time_end', 'number_of_employees', 'request_comment', 'status', 'request_date',
-                    'readable_broadcast')
+    list_display = ('branch', 'employee_position', 'request_type', 'INN', 'employee_full_name', 'personalized_request',
+                    'date_start', 'date_end', 'shift_time_start', 'shift_time_end', 'number_of_employees',
+                    'request_comment', 'status', 'request_date', 'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
 
     def save_model(self, request, obj: JobRequest, form, change):
@@ -59,8 +59,8 @@ class JobRequestAdmin(admin.ModelAdmin):
         if request.user.has_group('Distributor'):
             return ['branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
                     'shift_time_end', 'number_of_employees', 'request_comment', 'request_date',
-                    'readable_broadcast']
-        return ['status']
+                    'readable_broadcast', 'personalized_request']
+        return ['status', 'INN', 'employee_full_name']
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
