@@ -27,6 +27,7 @@ MarkupPy==1.14
 odfpy==1.4.1
 openpyxl==3.1.2
 prompt-toolkit==3.0.38
+psycopg2-binary==2.8.6
 python-dotenv==1.0.0
 python-telegram-bot==13.7
 pytz==2023.3
