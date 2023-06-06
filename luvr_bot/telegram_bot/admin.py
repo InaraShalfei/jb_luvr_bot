@@ -49,6 +49,7 @@ class JobRequestAdmin(admin.ModelAdmin):
                     'date_start', 'date_end', 'shift_time_start', 'shift_time_end', 'number_of_employees',
                     'request_comment', 'status', 'request_date', 'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
+    readonly_fields = ('last_notified_date', 'last_notification_status')
 
     def save_model(self, request, obj: JobRequest, form, change):
         if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager') and obj.branch.company == request.user.user_company):
@@ -66,8 +67,8 @@ class JobRequestAdmin(admin.ModelAdmin):
         if request.user.has_group('Distributor') or request.user.has_group('Manager'):
             return ['branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
                     'shift_time_end', 'number_of_employees', 'request_comment', 'request_date',
-                    'readable_broadcast', 'personalized_request']
-        return ['status', 'INN', 'employee_full_name']
+                    'readable_broadcast', 'personalized_request', 'last_notified_date', 'last_notification_status']
+        return ['last_notified_date', 'last_notification_status']
 
 
 class JobRequestAssignmentAdmin(admin.ModelAdmin):
