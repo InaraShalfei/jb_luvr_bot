@@ -4,6 +4,7 @@ from django.contrib import admin
 from import_export.admin import ExportActionMixin
 from import_export.resources import ModelResource
 from import_export.fields import Field
+from import_export.formats import base_formats
 
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser, \
@@ -180,6 +181,12 @@ class ProxyShiftAdmin(ExportActionMixin, admin.ModelAdmin):
                     'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
                     'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date', )
     resource_class = ProxyShiftModelResource
+
+    def get_export_formats(self):
+        formats = (
+            base_formats.XLSX,
+        )
+        return [f for f in formats if f().can_export()]
 
 
 class CompanyAdmin(admin.ModelAdmin):
