@@ -163,3 +163,4 @@ cython_debug/
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
 /.idea/jb_luvr_bot.iml
+/luvr_bot/static/
