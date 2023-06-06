@@ -221,7 +221,7 @@ class ProxyShift(Shift):
             actual_time = (self.start_position.geo_positions_date + timedelta(hours=6)).time()
             max_start_time = max(planned_time, actual_time)
         else:
-            max_start_time = 'нет отметки'
+            max_start_time = None
         return max_start_time
 
     @admin.display(description='отметка на уход')
@@ -231,7 +231,7 @@ class ProxyShift(Shift):
             actual_time = (self.end_position.geo_positions_date + timedelta(hours=6)).time()
             min_end_time = min(planned_time, actual_time)
         else:
-            min_end_time = 'нет отметки'
+            min_end_time = None
         return min_end_time
 
 

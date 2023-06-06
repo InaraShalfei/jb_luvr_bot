@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib import admin
 from import_export.admin import ExportActionMixin
 from import_export.resources import ModelResource
@@ -105,7 +107,7 @@ class ShiftAdmin(admin.ModelAdmin):
 class ProxyShiftModelResource(ModelResource):
     employee = Field(attribute='Сотрудник', column_name='Сотрудник')
     position = Field(attribute='Функция', column_name='Функция')
-    INN = Field(attribute='ИИН', column_name='ИИН')
+    iin = Field(attribute='ИИН', column_name='ИИН')
     company = Field(attribute='Контрагент', column_name='Контрагент')
     branch = Field(attribute='Организация', column_name='Организация')
     planned_shift_start = Field(attribute='Плановое начало смены', column_name='Плановое начало смены')
@@ -120,7 +122,7 @@ class ProxyShiftModelResource(ModelResource):
     def dehydrate_position(self, shift):
         return shift.readable_position()
 
-    def dehydrate_inn(self, shift):
+    def dehydrate_iin(self, shift):
         return shift.readable_inn()
 
     def dehydrate_company(self, shift):
@@ -130,19 +132,40 @@ class ProxyShiftModelResource(ModelResource):
         return shift.readable_branch()
 
     def dehydrate_planned_shift_start(self, shift):
-        return shift.readable_planned_shift_start()
+        planned_start = shift.readable_planned_shift_start()
+        planned_start = datetime.time.strftime(planned_start, '%H:%M')
+
+        return planned_start
 
     def dehydrate_planned_shift_end(self, shift):
-        return shift.readable_planned_shift_end()
+        planned_end = shift.readable_planned_shift_end()
+        planned_end = datetime.time.strftime(planned_end, '%H:%M')
+
+        return planned_end
 
     def dehydrate_actual_shift_start(self, shift):
-        return shift.readable_actual_shift_start()
+        actual_start = shift.readable_actual_shift_start()
+        if actual_start:
+            actual_start = datetime.time.strftime(actual_start, '%H:%M')
+        else:
+            actual_start = None
+
+        return actual_start
 
     def dehydrate_actual_shift_end(self, shift):
-        return shift.readable_actual_shift_end()
+        actual_end = shift.readable_actual_shift_end()
+        if actual_end:
+            actual_end = datetime.time.strftime(actual_end, '%H:%M')
+        else:
+            actual_end = None
 
-    def dehydrate_shift_date(self, shift):
-        return shift.readable_date()
+        return actual_end
+
+    def dehydrate_date(self, shift):
+        shift_date = shift.readable_date()
+        shift_date = datetime.date.strftime(shift_date, '%d.%m.%Y')
+
+        return shift_date
 
     class Meta:
         model = ProxyShift
