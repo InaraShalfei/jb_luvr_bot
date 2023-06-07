@@ -208,8 +208,8 @@ class CompanyAdmin(admin.ModelAdmin):
         return qs
 
 
-class CustomUserAdmin(admin.ModelAdmin):
-    UserAdmin.list_display += ('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_company')
+class CustomUserAdmin(UserAdmin):
+    list_display = UserAdmin.list_display + ('user_company', )
 
 
 admin.site.register(Employee, EmployeeAdmin)
