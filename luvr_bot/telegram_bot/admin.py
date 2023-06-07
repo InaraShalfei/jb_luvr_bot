@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from import_export.admin import ExportActionMixin
 from import_export.resources import ModelResource
 from import_export.fields import Field
@@ -208,7 +209,7 @@ class CompanyAdmin(admin.ModelAdmin):
 
 
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_company')
+    UserAdmin.list_display += ('username', 'email', 'first_name', 'last_name', 'is_staff', 'user_company')
 
 
 admin.site.register(Employee, EmployeeAdmin)
