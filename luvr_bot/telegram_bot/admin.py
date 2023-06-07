@@ -195,6 +195,12 @@ class ProxyShiftAdmin(ExportActionMixin, admin.ModelAdmin):
         )
         return [f for f in formats if f().can_export()]
 
+    def get_queryset(self, request):
+        qs = super(ProxyShiftAdmin, self).get_queryset(request)
+        if request.user.has_group('Manager'):
+            return qs.filter(assignment__job_request__branch__company=request.user.user_company)
+        return qs
+
 
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ('name', )
