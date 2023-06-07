@@ -141,7 +141,7 @@ def start(update, context):
 
 
 command = " ".join(sys.argv[:])
-if 'runserver' in command:
+if 'runserver' in command or 'gunicorn' in command:
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, main_func))
     updater.dispatcher.add_handler(MessageHandler(Filters.contact, main_func))
