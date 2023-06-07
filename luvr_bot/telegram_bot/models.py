@@ -12,7 +12,7 @@ from .constants import statuses_dict
 
 
 class Employee(models.Model):
-    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
+    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона', validators=[MinLengthValidator(3)])
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
