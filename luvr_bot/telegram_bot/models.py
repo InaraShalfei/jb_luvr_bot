@@ -29,7 +29,7 @@ class Employee(models.Model):
             raise ValueError('Не допускаются другие элементы, кроме цифр')
 
     def save(self, *args, **kwargs):
-        self.phone_number = '7' + self.phone_number[1:]
+        self.phone_number = '7' + self.phone_number[-10:]
         super().save(*args, **kwargs)
 
 
@@ -136,6 +136,8 @@ class JobRequest(models.Model):
         while start_date <= self.date_end:
             dates.append(start_date)
             start_date += delta
+
+        # if time == 00:00:00 then time = 23:59:59
 
         for date in dates:
             shift_start = datetime.datetime.combine(date, self.shift_time_start) - timedelta(minutes=tolerance_minutes)
