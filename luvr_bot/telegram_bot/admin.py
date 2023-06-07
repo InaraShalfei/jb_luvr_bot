@@ -215,6 +215,7 @@ class CompanyAdmin(admin.ModelAdmin):
 
 class CustomUserAdmin(UserAdmin):
     list_display = UserAdmin.list_display + ('user_company', )
+    fieldsets = UserAdmin.fieldsets + ((None, {"fields": ("user_company",)}),)
 
 
 admin.site.register(Employee, EmployeeAdmin)
