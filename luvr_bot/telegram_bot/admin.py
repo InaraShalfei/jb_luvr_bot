@@ -52,6 +52,11 @@ class JobRequestAdmin(admin.ModelAdmin):
     inlines = [JobRequestAssignmentInline]
     readonly_fields = ('last_notified_date', 'last_notification_status')
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'branch' and request.user.has_group('Manager'):
+            kwargs['queryset'] = Branch.objects.filter(company=request.user.user_company)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
     def save_model(self, request, obj: JobRequest, form, change):
         if request.user.is_superuser or request.user.has_group('Distributor') or (request.user.has_group('Manager') and obj.branch.company == request.user.user_company):
             super(JobRequestAdmin, self).save_model(request, obj, form, change)
