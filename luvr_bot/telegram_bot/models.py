@@ -131,11 +131,11 @@ class JobRequest(models.Model):
             dates.append(start_date)
             start_date += delta
 
-        # if time == 00:00:00 then time = 23:59:59
-
         for date in dates:
             shift_start = datetime.datetime.combine(date, self.shift_time_start) - timedelta(minutes=tolerance_minutes)
             shift_end = datetime.datetime.combine(date, self.shift_time_end) + timedelta(minutes=tolerance_minutes)
+            if shift_end <= shift_start:
+                shift_end += delta
             if shift_start <= request_date_time <= shift_end:
                 return True
         return False
