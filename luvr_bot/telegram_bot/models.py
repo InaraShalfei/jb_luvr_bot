@@ -6,12 +6,13 @@ from django.utils.html import format_html
 
 from django.db import models
 from django.contrib import admin
+from django.core.validators import MinLengthValidator
 
 from .constants import statuses_dict
 
 
 class Employee(models.Model):
-    phone_number = models.CharField(max_length=11, verbose_name='номер телефона')
+    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
