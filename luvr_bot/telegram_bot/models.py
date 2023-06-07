@@ -27,6 +27,8 @@ class Employee(models.Model):
     def clean(self):
         if not str(self.phone_number).isdigit():
             raise ValueError('Не допускаются другие элементы, кроме цифр')
+        elif len(self.phone_number) < 11:
+            raise MinLengthValidator
 
     def save(self, *args, **kwargs):
         self.phone_number = '7' + self.phone_number[-10:]
