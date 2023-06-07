@@ -12,7 +12,7 @@ from .constants import statuses_dict
 
 
 class Employee(models.Model):
-    phone_number = models.CharField(max_length=250, verbose_name='номер телефона')
+    phone_number = models.CharField(max_length=11, verbose_name='номер телефона')
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
@@ -23,6 +23,14 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.phone_number
+
+    def clean(self):
+        if not str(self.phone_number).isdigit():
+            raise ValueError('Не допускаются другие элементы, кроме цифр')
+
+    def save(self, *args, **kwargs):
+        self.phone_number = '7' + self.phone_number[1:]
+        super().save(*args, **kwargs)
 
 
 class EmployeeGeoPosition(models.Model):
