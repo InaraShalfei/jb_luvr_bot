@@ -1,5 +1,4 @@
 import datetime
-import pytz
 
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
@@ -99,6 +98,12 @@ class JobRequest(models.Model):
     request_date = models.DateTimeField(auto_now=True, verbose_name='дата заявки')
     last_notified_date = models.DateField(blank=True, null=True, verbose_name='дата последнего уведомления')
     last_notification_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус уведомления')
+
+    def clean(self):
+        shift_start = datetime.datetime.combine(self.date_start, self.shift_time_start)
+        shift_end = datetime. datetime.combine(self.date_end, self.shift_time_end)
+        if shift_end <= shift_start:
+            raise ValueError('Время окончания смены не может быть меньше или равно времени начала смены!')
 
     class Meta:
         verbose_name = 'Заявка на сотрудников'
