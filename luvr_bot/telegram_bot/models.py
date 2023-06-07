@@ -107,10 +107,10 @@ class JobRequest(models.Model):
 
     @admin.display(description='Рассылка')
     def readable_broadcast(self):
-        date_start = datetime.datetime.strftime(self.date_start, '%d.%m.%Y')
-        date_end = datetime.datetime.strftime(self.date_end, '%d.%m.%Y')
-        time_start = datetime.time.strftime(self.shift_time_start, '%H:%M')
-        time_end = datetime.time.strftime(self.shift_time_end, '%H:%M')
+        date_start = datetime.datetime.strftime(self.date_start, '%d.%m.%Y') if self.date_start else ''
+        date_end = datetime.datetime.strftime(self.date_end, '%d.%m.%Y') if self.date_end else ''
+        time_start = datetime.time.strftime(self.shift_time_start, '%H:%M') if self.shift_time_start else ''
+        time_end = datetime.time.strftime(self.shift_time_end, '%H:%M') if self.shift_time_end else ''
 
         return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{time_start} - {time_end}<br>'
                            f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
