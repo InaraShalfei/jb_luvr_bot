@@ -86,9 +86,13 @@ def main_func(update, context):
                 return
             shift.start_position = employee_geo_position
             shift.save()
-            location_button = KeyboardButton(text='Закончить смену', request_location=True)
             context.bot.send_message(chat_id=chat.id,
                                      text='Не забудьте завершить смену, нажав на кнопку "Закончить смену"',
+                                     )
+            location_button = KeyboardButton(text='Закончить смену', request_location=True)
+            shift_time_end = datetime.time.strftime(shift.assignment.job_request.shift_time_end, '%H:%M')
+            context.bot.send_message(chat_id=chat.id,
+                                     text=f'Вы уверены, что хотите закончить смену? Смена закончится в {shift_time_end}',
                                      reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
                                                                       resize_keyboard=True)
                                      )
