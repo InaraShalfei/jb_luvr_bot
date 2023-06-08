@@ -70,10 +70,6 @@ class JobRequestAdmin(admin.ModelAdmin):
         return qs
 
     def get_readonly_fields(self, request, obj=None):
-        # if request.user.has_group('Distributor') or request.user.has_group('Manager'):
-        #     return ['branch', 'employee_position', 'request_type', 'date_start', 'date_end', 'shift_time_start',
-        #             'shift_time_end', 'number_of_employees', 'request_comment', 'request_date',
-        #             'readable_broadcast', 'personalized_request', 'last_notified_date', 'last_notification_status']
         return ['last_notified_date', 'last_notification_status', 'readable_broadcast']
 
 
