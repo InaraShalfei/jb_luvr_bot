@@ -44,6 +44,8 @@ def send_shifts_start_15_min_ago_reminder():
                                              Q(last_notified_date=today))
     for job_request in job_requests:
         shift_start = datetime.datetime.combine(today, job_request.shift_time_start)
+        print(datetime.datetime.now())
+        print(shift_start)
         if (datetime.datetime.now() - shift_start).total_seconds() >= 5 * 60:
             for assignment in job_request.assignments.all():
                 # try:
