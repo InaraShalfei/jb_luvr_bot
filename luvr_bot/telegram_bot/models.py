@@ -84,6 +84,10 @@ class JobRequest(models.Model):
         ('CLOSED', 'Закрыта'),
         ('NEW', 'Новая')
     ]
+    REQUEST_TYPES = [
+        ('FOR_DATE', 'На дату'),
+        ('FOR_PERIOD', 'На период')
+    ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='job_requests', verbose_name='филиал')
     personalized_request = models.BooleanField(blank=True, null=True, default=False, verbose_name='именная заявка')
     employee_full_name = models.CharField(max_length=300, blank=True, null=True, verbose_name='ФИО сотрудника')
@@ -91,7 +95,7 @@ class JobRequest(models.Model):
     status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус заявки',
                               default='NEW')
     employee_position = models.CharField(blank=True, null=True, max_length=300, verbose_name='должность')
-    request_type = models.CharField(blank=True, null=True, max_length=250, verbose_name='тип заявки')
+    request_type = models.CharField(blank=True, null=True, choices=REQUEST_TYPES, max_length=250, verbose_name='тип заявки')
     date_start = models.DateField(blank=True, null=True, verbose_name='дата начала периода')
     date_end = models.DateField(blank=True, null=True, verbose_name='дата окончания периода')
     shift_time_start = models.TimeField(blank=True, null=True, verbose_name='время начала смены')
