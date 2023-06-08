@@ -107,7 +107,8 @@ class JobRequest(models.Model):
         verbose_name_plural = 'Заявки на сотрудников'
 
     def __str__(self):
-        date_str = datetime.datetime.strftime(self.request_date, '%d.%m.%Y %H:%M')
+        request_date = self.request_date + datetime.timedelta(hours=6)
+        date_str = datetime.datetime.strftime(request_date, '%d.%m.%Y %H:%M')
         return f'Заявка от {date_str}'
 
     @admin.display(description='Статус')
