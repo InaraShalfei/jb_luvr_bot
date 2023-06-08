@@ -1,0 +1,22 @@
+[Unit]
+
+Description=luvr celery beat daemon
+
+After=network.target
+
+[Service]
+
+User=ubuntu
+
+WorkingDirectory=/home/ubuntu/jb_luvr_bot/luvr_bot
+
+ExecStart=/bin/sh -c "export DJANGO_SETTINGS_MODULE=luvr_bot.settings; /home/ubuntu/.local/bin/celery -A luvr_bot beat --loglevel=DEBUG"
+
+Restart=on-failure
+
+RestartSec=42s
+
+[Install]
+
+WantedBy=multi-user.target
+

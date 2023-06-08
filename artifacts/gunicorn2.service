@@ -1,0 +1,25 @@
+  GNU nano 6.2                                                                           /etc/systemd/system/gunicorn2.service
+[Unit]
+
+Description=luvr gunicorn daemon
+
+
+After=network.target
+
+
+[Service]
+
+
+User=ubuntu
+
+WorkingDirectory=/home/ubuntu/jb_luvr_bot/luvr_bot
+
+
+ExecStart=/home/ubuntu/jb_luvr_bot/venv/bin/gunicorn --bind 127.0.0.1:9000 luvr_bot.wsgi:application
+
+
+
+[Install]
+
+WantedBy=multi-user.target
+
