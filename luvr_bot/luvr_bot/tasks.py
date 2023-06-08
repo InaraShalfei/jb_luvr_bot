@@ -23,13 +23,13 @@ def notify_shift_end_absent():
 
 
 app.conf.beat_schedule = {
-    'daily_shift_start': {
+    'notify_shift_start': {
         'task': 'luvr_bot.tasks.notify_shift_start',
         'schedule': 60.0,
         'args': ()
     },
-    'daily_shift_start_15_min_after': {
-        'task': 'luvr_bot.tasks.notify_shift_start_15_min_ago',
+    'notify_shift_start_absent': {
+        'task': 'luvr_bot.tasks.notify_shift_start_absent',
         'schedule': 60.0,
         'args': ()
     },
@@ -38,8 +38,8 @@ app.conf.beat_schedule = {
         'schedule': 60.0,
         'args': ()
     },
-    'daily_shift_end_15_min_after': {
-        'task': 'luvr_bot.tasks.notify_shift_end_15_min_after',
+    'notify_shift_end_absent': {
+        'task': 'luvr_bot.tasks.notify_shift_end_absent',
         'schedule': 60.0,
         'args': ()
     },
