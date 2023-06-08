@@ -1,5 +1,5 @@
-from telegram_bot.notifications import send_shifts_start_soon_reminder, send_shifts_start_15_min_ago_reminder, \
-    send_shifts_end_reminder, send_shifts_end_15_min_ago_reminder
+from telegram_bot.notifications import send_shifts_start_soon_reminder, send_shifts_start_missing_reminder, \
+    send_shifts_end_soon_reminder, send_shifts_end_missing_reminder
 from .celery import app
 
 
@@ -9,17 +9,17 @@ def notify_shift_start():
 
 
 @app.task
-def notify_shift_start_15_min_ago():
-    send_shifts_start_15_min_ago_reminder()
+def notify_shift_start_absent():
+    send_shifts_start_missing_reminder()
 
 
 @app.task
 def notify_shift_end():
-    send_shifts_end_reminder()
+    send_shifts_end_soon_reminder()
 
 @app.task
-def notify_shift_end_15_min_after():
-    send_shifts_end_15_min_ago_reminder()
+def notify_shift_end_absent():
+    send_shifts_end_missing_reminder()
 
 
 app.conf.beat_schedule = {
@@ -33,7 +33,6 @@ app.conf.beat_schedule = {
         'schedule': 60.0,
         'args': ()
     },
-
     'daily_shift_end': {
         'task': 'luvr_bot.tasks.notify_shift_end',
         'schedule': 60.0,
