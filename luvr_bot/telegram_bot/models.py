@@ -7,6 +7,8 @@ from django.utils.html import format_html
 from django.db import models
 from django.contrib import admin
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
+
 
 from .constants import statuses_dict
 
@@ -26,9 +28,9 @@ class Employee(models.Model):
 
     def clean(self):
         if not str(self.phone_number).isdigit():
-            raise ValueError('Не допускаются другие элементы, кроме цифр')
+            raise ValidationError('Не допускаются другие элементы, кроме цифр')
         elif len(self.phone_number) < 11:
-            raise ValueError('Номер не должен быть менее 11 цифр')
+            raise ValidationError('Номер не должен быть менее 11 цифр')
 
     def save(self, *args, **kwargs):
         self.phone_number = '7' + self.phone_number[-10:]
@@ -163,6 +165,12 @@ class JobRequestAssignment(models.Model):
     class Meta:
         verbose_name = 'Назначение сотрудников'
         verbose_name_plural = 'Назначения сотрудников'
+
+    def clean(self):
+        max_assignments = ((self.job_request.date_end - self.job_request.date_start).days + 1) * int(self.job_request.number_of_employees)
+
+        if self.job_request.assignments.count() >= max_assignments:
+            raise ValidationError('Для данной заявки нельзя больше создать назначения!')
 
     def __str__(self):
         date_str = datetime.datetime.strftime(self.assignment_date, '%d.%m.%Y %H:%M')
