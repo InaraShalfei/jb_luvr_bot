@@ -96,7 +96,7 @@ def send_shifts_end_15_min_ago_reminder():
                                              Q(last_notified_date=today))
     for job_request in job_requests:
         shift_end = datetime.datetime.combine(today, job_request.shift_time_end)
-        if (datetime.datetime.now() - shift_end).total_seconds() >= 5:
+        if (datetime.datetime.now() - shift_end).total_seconds() >= 5 * 60:
             for assignment in job_request.assignments.all():
                 try:
                     shift_for_today = assignment.get_shift_for_date(today)
@@ -104,7 +104,7 @@ def send_shifts_end_15_min_ago_reminder():
                             shift_for_today is None or shift_for_today.end_position is None):
                         location_button = KeyboardButton(text='Закончить смену', request_location=True)
                         bot.send_message(chat_id=assignment.employee.chat_id,
-                                         text=f'Ваша смена закончилась более 15 минут назад.\nНеобходимо отправить геоданные об Уходе',
+                                         text=f'Ваша смена закончилась более 5 минут назад.\nНеобходимо отправить геоданные об Уходе',
                                          reply_markup=ReplyKeyboardMarkup([[location_button]], one_time_keyboard=True,
                                                                           resize_keyboard=True
                                                                           ))
