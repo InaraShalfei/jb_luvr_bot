@@ -172,6 +172,8 @@ class JobRequestAssignment(models.Model):
 
         if self.job_request.assignments.count() >= max_assignments:
             raise ValidationError('Для данной заявки нельзя больше создать назначения!')
+        elif self.assignment_date < self.job_request.date_start or self.assignment_date > self.job_request.date_end:
+            raise ValidationError('Дата назначения должна быть в рамках периода, указанного в заявке!')
 
     def __str__(self):
         date_str = datetime.datetime.strftime(self.assignment_date, '%d.%m.%Y %H:%M')
@@ -192,6 +194,8 @@ class JobRequestAssignment(models.Model):
         if shift_start <= request_date_time <= shift_end:
             return True
         return False
+
+
 
 
 class Shift(models.Model):
