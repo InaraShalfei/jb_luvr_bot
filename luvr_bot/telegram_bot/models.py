@@ -132,22 +132,22 @@ class JobRequest(models.Model):
         return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{time_start} - {time_end}<br>'
                            f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
 
-    def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
-        dates = []
-        delta = timedelta(days=1)
-        start_date = self.date_start
-        while start_date <= self.date_end:
-            dates.append(start_date)
-            start_date += delta
-
-        for date in dates:
-            shift_start = datetime.datetime.combine(date, self.shift_time_start) - timedelta(minutes=tolerance_minutes)
-            shift_end = datetime.datetime.combine(date, self.shift_time_end) + timedelta(minutes=tolerance_minutes)
-            if shift_end <= shift_start:
-                shift_end += delta
-            if shift_start <= request_date_time <= shift_end:
-                return True
-        return False
+    # def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
+    #     dates = []
+    #     delta = timedelta(days=1)
+    #     start_date = self.date_start
+    #     while start_date <= self.date_end:
+    #         dates.append(start_date)
+    #         start_date += delta
+    #
+    #     for date in dates:
+    #         shift_start = datetime.datetime.combine(date, self.shift_time_start) - timedelta(minutes=tolerance_minutes)
+    #         shift_end = datetime.datetime.combine(date, self.shift_time_end) + timedelta(minutes=tolerance_minutes)
+    #         if shift_end <= shift_start:
+    #             shift_end += delta
+    #         if shift_start <= request_date_time <= shift_end:
+    #             return True
+    #     return False
 
 
 class JobRequestAssignment(models.Model):
@@ -183,7 +183,15 @@ class JobRequestAssignment(models.Model):
                 return shift
         return None
 
-    #TODO new method - check that assignment_date = today
+    def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
+        delta = timedelta(days=1)
+        shift_start = datetime.datetime.combine(self.assignment_date, self.job_request.shift_time_start) - timedelta(minutes=tolerance_minutes)
+        shift_end = datetime.datetime.combine(self.assignment_date, self.job_request.shift_time_end) + timedelta(minutes=tolerance_minutes)
+        if shift_end <= shift_start:
+            shift_end += delta
+        if shift_start <= request_date_time <= shift_end:
+            return True
+        return False
 
 
 class Shift(models.Model):

@@ -52,7 +52,7 @@ def main_func(update, context):
     assignment = None
 
     for possible_assignment in possible_assignments:
-        if possible_assignment.job_request.is_shift_includes_time(telegram_message_date):
+        if possible_assignment.is_shift_includes_time(datetime.datetime.now()):
             if assignment is not None:
                 context.bot.send_message(chat_id=chat.id, text='У вас несколько назначений на этот день.'
                                                                '\nОбратитесь к менеджеру.')
