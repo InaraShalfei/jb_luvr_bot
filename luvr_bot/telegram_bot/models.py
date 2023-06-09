@@ -80,7 +80,7 @@ class Branch(models.Model):
         verbose_name_plural = 'Филиалы'
 
     def __str__(self):
-        return f'{self.branch_name} {self.address}'
+        return f'{self.company} - {self.branch_name}'
 
 
 class JobRequest(models.Model):
@@ -138,13 +138,12 @@ class JobRequest(models.Model):
         time_start = datetime.time.strftime(self.shift_time_start, '%H:%M') if self.shift_time_start else ''
         time_end = datetime.time.strftime(self.shift_time_end, '%H:%M') if self.shift_time_end else ''
 
-        return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{time_start} - {time_end}<br>'
-                           f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
+        return f'{self.branch}\n📌{self.employee_position}\n🕐{time_start} - {time_end}\n🔴Дата: {date_start} - {date_end}\n✅Оплата: 1000 тнг/час'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         broadcast = self.readable_broadcast()
-        channels_dict = {'KASSIR': '@kassir_jumisbar', 'POVAR': '@povar_jumisbar'}
+        channels_dict = {'Кассир': '@kassir_jumisbar', 'Повар': '@povar_jumisbar'}
         bot.send_message(chat_id=channels_dict[self.employee_position], text=broadcast)
 
 
