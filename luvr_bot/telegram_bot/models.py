@@ -160,7 +160,7 @@ class JobRequestAssignment(models.Model):
     status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус назначения')
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='assignments',
                                  verbose_name='сотрудник')
-    assignment_date = models.DateTimeField(auto_now=True, verbose_name='дата назначения')
+    assignment_date = models.DateTimeField(blank=True, null=True, verbose_name='дата назначения')
 
     class Meta:
         verbose_name = 'Назначение сотрудников'
