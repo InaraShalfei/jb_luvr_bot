@@ -144,7 +144,8 @@ class JobRequest(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         broadcast = self.readable_broadcast()
-        bot.send_message(chat_id=6168735039, text=broadcast)
+        channels_dict = {'KASSIR': '@kassir_jumisbar', 'POVAR': '@povar_jumisbar'}
+        bot.send_message(chat_id=channels_dict[self.employee_position], text=broadcast)
 
 
 class JobRequestAssignment(models.Model):
