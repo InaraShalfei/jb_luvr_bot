@@ -165,7 +165,7 @@ class JobRequestAssignment(models.Model):
     class Meta:
         verbose_name = 'Назначение сотрудников'
         verbose_name_plural = 'Назначения сотрудников'
-        unique_together = ('job_request', 'employee')
+        unique_together = ('assignment_date', 'employee')
 
     def clean(self):
         max_assignments = ((self.job_request.date_end - self.job_request.date_start).days + 1) * int(self.job_request.number_of_employees)
