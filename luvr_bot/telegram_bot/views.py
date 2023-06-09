@@ -60,7 +60,7 @@ def main_func(update, context):
             assignment = possible_assignment
     if assignment is None:
         context.bot.send_message(chat_id=chat.id, text='Для вас не была назначена заявка на смену.'
-                                                       '\nОбратитесь к менеджеру.')
+                                                       '\nЛибо вы пришли слишком рано, ваша смена еще не началась')
         return
 
     shift = Shift.objects.filter(Q(assignment=assignment) & Q(shift_date=datetime.datetime.today())).first()
