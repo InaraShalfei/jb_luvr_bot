@@ -1,16 +1,21 @@
 import datetime
+import os
 
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.utils.html import format_html
-
 from django.db import models
 from django.contrib import admin
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
-
+from dotenv import load_dotenv
+from telegram import Bot
 
 from .constants import statuses_dict
+
+load_dotenv()
+token = os.getenv('TELEGRAM_TOKEN')
+bot = Bot(token=token)
 
 
 class Employee(models.Model):
@@ -132,22 +137,10 @@ class JobRequest(models.Model):
         return format_html(f'{self.branch}<br>📌{self.employee_position}<br>🕐{time_start} - {time_end}<br>'
                            f'🔴Дата: {date_start} - {date_end}<br>✅Оплата: 1000 тнг/час')
 
-    # def is_shift_includes_time(self, request_date_time, tolerance_minutes=30):
-    #     dates = []
-    #     delta = timedelta(days=1)
-    #     start_date = self.date_start
-    #     while start_date <= self.date_end:
-    #         dates.append(start_date)
-    #         start_date += delta
-    #
-    #     for date in dates:
-    #         shift_start = datetime.datetime.combine(date, self.shift_time_start) - timedelta(minutes=tolerance_minutes)
-    #         shift_end = datetime.datetime.combine(date, self.shift_time_end) + timedelta(minutes=tolerance_minutes)
-    #         if shift_end <= shift_start:
-    #             shift_end += delta
-    #         if shift_start <= request_date_time <= shift_end:
-    #             return True
-    #     return False
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        broadcast = self.readable_broadcast()
+        bot.send_message(chat_id=6168735039, text=broadcast)
 
 
 class JobRequestAssignment(models.Model):
