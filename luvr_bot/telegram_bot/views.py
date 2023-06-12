@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 import sys
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup
@@ -16,10 +17,69 @@ token = os.getenv('TELEGRAM_TOKEN')
 updater = Updater(token)
 
 
+def apply_flow(update, context):
+    chat = update.effective_chat
+    employee = Employee.objects.get(chat_id=chat.id)
+
+    job_request = employee.current_job_request
+    buttons = ['Отмена', 'OK']
+    dates = []
+    delta = datetime.timedelta(days=1)
+    start_date = job_request.date_start
+    while start_date <= job_request.date_end:
+        dates.append(start_date)
+        start_date += delta
+
+    for date in dates:
+        date = datetime.datetime.strftime(date, '%d.%m.%Y')
+        buttons.append(date)
+
+    text = update.message.text
+
+    if text.startswith('/start jobrequest'):
+        name = update.message.chat.first_name
+        context.bot.send_message(chat_id=chat.id, text=f'Добрый день, {name}')
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Хотите записаться на должность {job_request.employee_position}?\nПожалуйста, выберите даты и нажмите ОК',
+            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
+        return
+    elif text == 'Отмена':
+        employee.current_job_request = None
+        employee.job_request_draft = None
+        employee.save()
+        return
+    elif text == 'OK':
+        for date in employee.job_request_draft.split():
+            date = datetime.datetime.strptime(date, '%d.%m.%Y')
+            JobRequestAssignment.objects.create(job_request=job_request, employee=employee, assignment_date=date)
+        employee.current_job_request = None
+        employee.job_request_draft = None
+        employee.save()
+        return
+    elif re.compile(r"(^\d{2}.\d{2}.\d{4}$)").match(text):
+        if not employee.job_request_draft:
+            employee.job_request_draft = text
+            employee.save()
+        else:
+            employee.job_request_draft += ' '
+            employee.job_request_draft += text
+            employee.save()
+
+        buttons.remove(text)
+        return
+
+
 def main_func(update, context):
     chat = update.effective_chat
-    has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(update.message.contact, 'phone_number')
-    if not Employee.objects.filter(chat_id=chat.id).exists() and not has_contact_in_message:
+    employee = Employee.objects.get(chat_id=chat.id) if Employee.objects.filter(chat_id=chat.id).exists() else None
+    if employee and employee.current_job_request:
+        return apply_flow(update, context)
+    has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
+        update.message.contact, 'phone_number')
+    if not employee and not has_contact_in_message:
         phone_button = KeyboardButton(text='Отправить номер телефона', request_contact=True)
         context.bot.send_message(chat_id=chat.id,
                                  text=f'Пожалуйста, отправьте мне свой номер телефона для регистрации '
@@ -145,27 +205,10 @@ def start(update, context):
         job_request_id = int(text.replace('/start jobrequest', ''))
         job_request = JobRequest.objects.get(pk=job_request_id)
         employee, created = Employee.objects.get_or_create(chat_id=chat.id)
-        employee.current_job_request = job_request_id
+        employee.current_job_request = job_request
         employee.save()
-        buttons = []
-        dates = []
-        delta = datetime.timedelta(days=1)
-        start_date = job_request.date_start
-        while start_date <= job_request.date_end:
-            dates.append(start_date)
-            start_date += delta
+        apply_flow(update, context)
 
-        for date in dates:
-            date = datetime.datetime.strftime(date, '%d.%m.%Y')
-            button = KeyboardButton(text=date)
-            buttons.append(button)
-
-        context.bot.send_message(
-            chat_id=chat.id,
-            text=f'Хотите записаться на должность {job_request.employee_position}?',
-            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
-                                             resize_keyboard=True)
-        )
     else:
         context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
         main_func(update, context)
