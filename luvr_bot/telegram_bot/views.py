@@ -32,6 +32,7 @@ def apply_flow(update, context):
 
     for date in dates:
         date = datetime.datetime.strftime(date, '%d.%m.%Y')
+        ## todo do not put date if draft contains this date
         buttons.append(date)
 
     text = update.message.text
@@ -50,26 +51,63 @@ def apply_flow(update, context):
         employee.current_job_request = None
         employee.job_request_draft = None
         employee.save()
+        # send message "everything removed" and empty buttons array
         return
     elif text == 'OK':
         for date in employee.job_request_draft.split():
-            date = datetime.datetime.strptime(date, '%d.%m.%Y')
-            JobRequestAssignment.objects.create(job_request=job_request, employee=employee, assignment_date=date)
+            shift_date = datetime.datetime.strptime(date, '%d.%m.%Y')
+            assignment = (JobRequestAssignment.objects.get(job_request=job_request, employee=employee, assignment_date=shift_date)
+                          if JobRequestAssignment.objects.filter(job_request=job_request, employee=employee, assignment_date=shift_date).exists()
+                          else None)
+            if not assignment:
+                JobRequestAssignment.objects.create(job_request=job_request, employee=employee, assignment_date=shift_date)
+            else:
+                context.bot.send_message(
+                    chat_id=chat.id,
+                    text=f'На дату {date} уже найден сотрудник',
+                )
         employee.current_job_request = None
         employee.job_request_draft = None
         employee.save()
+        if JobRequestAssignment.objects.filter(job_request=job_request, employee=employee).exists():
+            assignments = JobRequestAssignment.objects.filter(job_request=job_request, employee=employee).all()
+            dates = [datetime.datetime.strftime(assignment.assignment_date, '%d.%m.%Y') for assignment in assignments]
+            context.bot.send_message(
+                chat_id=chat.id,
+                text=f'Для вас на должность {job_request.employee_position} были созданы назначения на следующие даты: {" ".join(dates)}'
+            )
+        else:
+            context.bot.send_message(
+                chat_id=chat.id,
+                text='На данные даты уже найдены сотружники. Проверьте другие даты или вакансии'
+            )
         return
     elif re.compile(r"(^\d{2}.\d{2}.\d{4}$)").match(text):
         if not employee.job_request_draft:
             employee.job_request_draft = text
             employee.save()
         else:
-            employee.job_request_draft += ' '
-            employee.job_request_draft += text
+            dates = employee.job_request_draft.split()
+            dates.append(text)
+            dates.sort()
+            employee.job_request_draft = ' '.join(dates)
             employee.save()
 
         buttons.remove(text)
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\nПожалуйста, выберите даты и нажмите ОК',
+            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
         return
+    else:
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\nПожалуйста, выберите даты и нажмите ОК',
+            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
 
 
 def main_func(update, context):
