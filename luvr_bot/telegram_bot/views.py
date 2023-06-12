@@ -22,15 +22,14 @@ def apply_flow(update, context):
     employee = Employee.objects.get(chat_id=chat.id)
 
     job_request = employee.current_job_request
-    buttons = ['Отмена', 'OK']
+    default_buttons = ['Отмена', 'OK']
+    buttons = []
     delta = datetime.timedelta(days=1)
-    start_date = job_request.date_start
-    busy_dates = employee.job_request_draft.split() if employee.job_request_draft else []
-    while start_date <= job_request.date_end:
-        date = datetime.datetime.strftime(start_date, '%d.%m.%Y')
-        if date not in busy_dates:
-            buttons.append(date)
-        start_date += delta
+    job_request_date = job_request.date_start
+    while job_request_date <= job_request.date_end:
+        date = datetime.datetime.strftime(job_request_date, '%d.%m.%Y')
+        buttons.append(date)
+        job_request_date += delta
 
     text = update.message.text
 
@@ -40,20 +39,17 @@ def apply_flow(update, context):
         context.bot.send_message(
             chat_id=chat.id,
             text=f'Хотите записаться на должность {job_request.employee_position}?\nПожалуйста, выберите даты и нажмите ОК',
-            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
                                              resize_keyboard=True)
         )
         return
     elif text == 'Отмена':
-        employee.current_job_request = None
         employee.job_request_draft = None
         employee.save()
-        #TODO return all buttons to keyboard
-        buttons = [None]
         context.bot.send_message(
             chat_id=chat.id,
             text=f'Все выбранные даты были удалены. Выберите даты снова',
-            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
                                              resize_keyboard=True)
         )
         return
@@ -98,21 +94,24 @@ def apply_flow(update, context):
             employee.job_request_draft = ' '.join(dates)
             employee.save()
 
-        buttons.remove(text)
+        busy_dates = employee.job_request_draft.split() if employee.job_request_draft else []
+        buttons = list(set(buttons) - set(busy_dates))
+        buttons.sort()
         context.bot.send_message(
             chat_id=chat.id,
             text=f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\nПожалуйста, выберите даты и нажмите ОК',
-            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
-                                             resize_keyboard=True)
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True, resize_keyboard=True)
         )
         return
     else:
-        #TODO alter text
+        busy_dates = employee.job_request_draft.split() if employee.job_request_draft else []
+        buttons = list(set(buttons) - set(busy_dates))
+        buttons.sort()
+        intro_text = f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\n' if employee.job_request_draft else ''
         context.bot.send_message(
             chat_id=chat.id,
-            text=f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\nПожалуйста, выберите даты и нажмите ОК',
-            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
-                                             resize_keyboard=True)
+            text=f'{intro_text}Пожалуйста, выберите даты и нажмите ОК',
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True, resize_keyboard=True)
         )
 
 
