@@ -23,6 +23,8 @@ class Employee(models.Model):
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
+    current_job_request = models.CharField(max_length=100, blank=True, null=True, verbose_name='текущая заявка')
+    job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
 
     class Meta:
         verbose_name = 'Сотрудник'
