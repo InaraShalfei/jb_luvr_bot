@@ -144,15 +144,26 @@ def start(update, context):
     if text.startswith('/start jobrequest'):
         job_request_id = int(text.replace('/start jobrequest', ''))
         job_request = JobRequest.objects.get(pk=job_request_id)
-        # store to employee model as current
-        button1 = KeyboardButton(text='06.06.2023')
-        button2 = KeyboardButton(text='07.06.2023')
-        button3 = KeyboardButton(text='08.06.2023')
+        employee, created = Employee.objects.get_or_create(chat_id=chat.id)
+        employee.current_job_request = job_request_id
+        employee.save()
+        buttons = []
+        dates = []
+        delta = datetime.timedelta(days=1)
+        start_date = job_request.date_start
+        while start_date <= job_request.date_end:
+            dates.append(start_date)
+            start_date += delta
+
+        for date in dates:
+            date = datetime.datetime.strftime(date, '%d.%m.%Y')
+            button = KeyboardButton(text=date)
+            buttons.append(button)
 
         context.bot.send_message(
             chat_id=chat.id,
             text=f'Хотите записаться на должность {job_request.employee_position}?',
-            reply_markup=ReplyKeyboardMarkup([[button1], [button2], [button3], ], one_time_keyboard=True,
+            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
                                              resize_keyboard=True)
         )
     else:
