@@ -138,7 +138,8 @@ class JobRequest(models.Model):
         time_start = datetime.time.strftime(self.shift_time_start, '%H:%M') if self.shift_time_start else ''
         time_end = datetime.time.strftime(self.shift_time_end, '%H:%M') if self.shift_time_end else ''
 
-        return f'{self.branch}\n📌{self.employee_position}\n🕐{time_start} - {time_end}\n🔴Дата: {date_start} - {date_end}\n✅Оплата: 1000 тнг/час'
+        return f'{self.branch}\n📌{self.employee_position}\n🕐{time_start} - {time_end}\n🔴Дата: {date_start} - {date_end}\n✅Оплата: 1000 тнг/час' \
+               f' t.me/@jb_luvr_bot?start=jobrequest{self.pk}'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
