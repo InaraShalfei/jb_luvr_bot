@@ -23,17 +23,14 @@ def apply_flow(update, context):
 
     job_request = employee.current_job_request
     buttons = ['Отмена', 'OK']
-    dates = []
     delta = datetime.timedelta(days=1)
     start_date = job_request.date_start
+    busy_dates = employee.job_request_draft.split() if employee.job_request_draft else []
     while start_date <= job_request.date_end:
-        dates.append(start_date)
+        date = datetime.datetime.strftime(start_date, '%d.%m.%Y')
+        if date not in busy_dates:
+            buttons.append(date)
         start_date += delta
-
-    for date in dates:
-        date = datetime.datetime.strftime(date, '%d.%m.%Y')
-        ## todo do not put date if draft contains this date
-        buttons.append(date)
 
     text = update.message.text
 
@@ -51,8 +48,16 @@ def apply_flow(update, context):
         employee.current_job_request = None
         employee.job_request_draft = None
         employee.save()
-        # send message "everything removed" and empty buttons array
+        #TODO return all buttons to keyboard
+        buttons = [None]
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Все выбранные даты были удалены. Выберите даты снова',
+            reply_markup=ReplyKeyboardMarkup([buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
         return
+
     elif text == 'OK':
         for date in employee.job_request_draft.split():
             shift_date = datetime.datetime.strptime(date, '%d.%m.%Y')
@@ -102,6 +107,7 @@ def apply_flow(update, context):
         )
         return
     else:
+        #TODO alter text
         context.bot.send_message(
             chat_id=chat.id,
             text=f'Вы выбрали {employee.job_request_draft}. Хотите выбрать еще смены?\nПожалуйста, выберите даты и нажмите ОК',
