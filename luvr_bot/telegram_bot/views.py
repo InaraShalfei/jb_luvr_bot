@@ -6,7 +6,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
-from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift
+from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
 from geopy.distance import geodesic as GD
 from django.db.models import Q
 
@@ -140,8 +140,24 @@ def main_func(update, context):
 def start(update, context):
     chat = update.effective_chat
     name = update.message.chat.first_name
-    context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-    main_func(update, context)
+    text: str = update.message.text
+    if text.startswith('/start jobrequest'):
+        job_request_id = int(text.replace('/start jobrequest', ''))
+        job_request = JobRequest.objects.get(pk=job_request_id)
+        # store to employee model as current
+        button1 = KeyboardButton(text='06.06.2023')
+        button2 = KeyboardButton(text='07.06.2023')
+        button3 = KeyboardButton(text='08.06.2023')
+
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Хотите записаться на должность {job_request.employee_position}?',
+            reply_markup=ReplyKeyboardMarkup([[button1], [button2], [button3], ], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
+    else:
+        context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
+        main_func(update, context)
 
 
 command = " ".join(sys.argv[:])
