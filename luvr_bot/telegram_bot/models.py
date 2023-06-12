@@ -18,46 +18,6 @@ token = os.getenv('TELEGRAM_TOKEN')
 bot = Bot(token=token)
 
 
-class Employee(models.Model):
-    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона', validators=[MinLengthValidator(3)])
-    chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
-    INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
-    full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
-    current_job_request = models.CharField(max_length=100, blank=True, null=True, verbose_name='текущая заявка')
-    job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
-
-    class Meta:
-        verbose_name = 'Сотрудник'
-        verbose_name_plural = 'Сотрудники'
-
-    def __str__(self):
-        return self.phone_number
-
-    def clean(self):
-        if not str(self.phone_number).isdigit():
-            raise ValidationError('Не допускаются другие элементы, кроме цифр')
-        elif len(self.phone_number) < 11:
-            raise ValidationError('Номер не должен быть менее 11 цифр')
-
-    def save(self, *args, **kwargs):
-        self.phone_number = '7' + self.phone_number[-10:]
-        super().save(*args, **kwargs)
-
-
-class EmployeeGeoPosition(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='geo_positions', verbose_name='сотрудник')
-    latitude = models.CharField(max_length=300, verbose_name='широта')
-    longitude = models.CharField(max_length=300, verbose_name='долгота')
-    geo_positions_date = models.DateTimeField(auto_now=True, verbose_name='дата внесения гео позиций')
-
-    class Meta:
-        verbose_name = 'Геопозиция сотрудника'
-        verbose_name_plural = 'Геопозиция сотрудников'
-
-    def __str__(self):
-        return f'{self.latitude} - {self.longitude}'
-
-
 class Company(models.Model):
     name = models.CharField(max_length=250,  verbose_name='название компании')
 
@@ -150,6 +110,46 @@ class JobRequest(models.Model):
         bot.send_message(chat_id=channels_dict[self.employee_position], text=broadcast)
 
 
+class Employee(models.Model):
+    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона', validators=[MinLengthValidator(3)])
+    chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
+    INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
+    full_name = models.CharField(max_length=12, verbose_name='ФИО сотрудника', null=True, blank=True)
+    current_job_request = models.ForeignKey(JobRequest, on_delete=models.CASCADE, null=True, blank=True, verbose_name='текущая заявка')
+    job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
+
+    class Meta:
+        verbose_name = 'Сотрудник'
+        verbose_name_plural = 'Сотрудники'
+
+    def __str__(self):
+        return self.phone_number
+
+    def clean(self):
+        if not str(self.phone_number).isdigit():
+            raise ValidationError('Не допускаются другие элементы, кроме цифр')
+        elif len(self.phone_number) < 11:
+            raise ValidationError('Номер не должен быть менее 11 цифр')
+
+    def save(self, *args, **kwargs):
+        self.phone_number = '7' + self.phone_number[-10:]
+        super().save(*args, **kwargs)
+
+
+class EmployeeGeoPosition(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='geo_positions', verbose_name='сотрудник')
+    latitude = models.CharField(max_length=300, verbose_name='широта')
+    longitude = models.CharField(max_length=300, verbose_name='долгота')
+    geo_positions_date = models.DateTimeField(auto_now=True, verbose_name='дата внесения гео позиций')
+
+    class Meta:
+        verbose_name = 'Геопозиция сотрудника'
+        verbose_name_plural = 'Геопозиция сотрудников'
+
+    def __str__(self):
+        return f'{self.latitude} - {self.longitude}'
+
+
 class JobRequestAssignment(models.Model):
     STATUSES = [
         ('ADMITTED', 'Подтверждено'),
@@ -194,8 +194,6 @@ class JobRequestAssignment(models.Model):
         if shift_start <= request_date_time <= shift_end:
             return True
         return False
-
-
 
 
 class Shift(models.Model):
