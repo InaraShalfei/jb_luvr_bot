@@ -3,7 +3,7 @@ import os
 import re
 import sys
 
-from telegram import KeyboardButton, ReplyKeyboardMarkup
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
@@ -55,12 +55,14 @@ def apply_flow(update, context):
         return
 
     elif text == 'OK':
+        real_assigned_dates = []
         for date in employee.job_request_draft.split():
             shift_date = datetime.datetime.strptime(date, '%d.%m.%Y')
             assignment = (JobRequestAssignment.objects.get(job_request=job_request, employee=employee, assignment_date=shift_date)
                           if JobRequestAssignment.objects.filter(job_request=job_request, employee=employee, assignment_date=shift_date).exists()
                           else None)
             if not assignment:
+                real_assigned_dates.append(shift_date)
                 JobRequestAssignment.objects.create(job_request=job_request, employee=employee, assignment_date=shift_date)
             else:
                 context.bot.send_message(
@@ -70,17 +72,18 @@ def apply_flow(update, context):
         employee.current_job_request = None
         employee.job_request_draft = None
         employee.save()
-        if JobRequestAssignment.objects.filter(job_request=job_request, employee=employee).exists():
-            assignments = JobRequestAssignment.objects.filter(job_request=job_request, employee=employee).all()
-            dates = [datetime.datetime.strftime(assignment.assignment_date, '%d.%m.%Y') for assignment in assignments]
+        if real_assigned_dates:
+            dates = [datetime.datetime.strftime(date, '%d.%m.%Y') for date in real_assigned_dates]
             context.bot.send_message(
                 chat_id=chat.id,
-                text=f'Для вас на должность {job_request.employee_position} были созданы назначения на следующие даты: {" ".join(dates)}'
+                text=f'Для вас на должность {job_request.employee_position} были созданы назначения на следующие даты: {" ".join(dates)}',
+                reply_markup=ReplyKeyboardRemove()
             )
         else:
             context.bot.send_message(
                 chat_id=chat.id,
-                text='На данные даты уже найдены сотружники. Проверьте другие даты или вакансии'
+                text='На данные даты уже найдены сотрудники. Проверьте другие даты или вакансии',
+                reply_markup=ReplyKeyboardRemove()
             )
         return
     elif re.compile(r"(^\d{2}.\d{2}.\d{4}$)").match(text):
