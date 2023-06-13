@@ -1,4 +1,6 @@
+
 import datetime
+import os
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -6,7 +8,13 @@ from import_export.admin import ExportActionMixin
 from import_export.resources import ModelResource
 from import_export.fields import Field
 from import_export.formats import base_formats
+from dotenv import load_dotenv
+from telegram import Bot
+from typing import List
 
+load_dotenv()
+token = os.getenv('TELEGRAM_TOKEN')
+bot = Bot(token=token)
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser, \
     ProxyShift
@@ -89,6 +97,24 @@ class JobRequestAssignmentAdmin(admin.ModelAdmin):
         if request.user.has_group('Manager'):
             return qs.filter(job_request__branch__company=request.user.user_company)
         return qs
+
+    def delete_model(self, request, obj: JobRequestAssignment):
+        date_str = datetime.datetime.strftime(obj.assignment_date, '%d.%m.%Y')
+        # todo if do not send if there is no chat_id
+        bot.send_message(chat_id=obj.employee.chat_id,
+                         text=f'Ваше назначение на должность {obj.job_request.employee_position} '
+                              f'на дату {date_str} было удалено.\nОбратитесь к менеджеру')
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        objects: List[JobRequestAssignment] = queryset.all()
+        for assignment in objects:
+            # todo if do not send if there is no chat_id
+            date_str = datetime.datetime.strftime(assignment.assignment_date, '%d.%m.%Y')
+            bot.send_message(chat_id=assignment.employee.chat_id,
+                             text=f'Ваше назначение на должность {assignment.job_request.employee_position} '
+                                  f'на дату {date_str} было удалено.\nОбратитесь к менеджеру')
+        super().delete_queryset(request, queryset)
 
 
 class ShiftAdmin(admin.ModelAdmin):
