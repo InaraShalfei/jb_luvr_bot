@@ -5,7 +5,6 @@ from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib import admin
-from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 from dotenv import load_dotenv
 from telegram import Bot
@@ -110,7 +109,7 @@ class JobRequest(models.Model):
 
 
 class Employee(models.Model):
-    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона', validators=[MinLengthValidator(3)])
+    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=300, verbose_name='ФИО сотрудника', null=True, blank=True)
@@ -132,12 +131,8 @@ class Employee(models.Model):
             raise ValidationError('Номер не должен быть менее 11 цифр')
         elif not str(self.INN).isdigit():
             raise ValidationError('Не допускаются другие элементы, кроме цифр')
-        elif len(self.phone_number) < 12:
+        elif len(self.INN) < 12:
             raise ValidationError('ИИН не должен быть менее 12 цифр')
-
-    def save(self, *args, **kwargs):
-        self.phone_number = '7' + self.phone_number[-10:]
-        super().save(*args, **kwargs)
 
 
 class EmployeeGeoPosition(models.Model):
