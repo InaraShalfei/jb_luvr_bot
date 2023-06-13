@@ -146,7 +146,6 @@ class EmployeeGeoPosition(models.Model):
     longitude = models.CharField(max_length=300, verbose_name='долгота')
     geo_positions_date = models.DateTimeField(auto_now=True, verbose_name='дата внесения гео позиций')
 
-
     class Meta:
         verbose_name = 'Геопозиция сотрудника'
         verbose_name_plural = 'Геопозиция сотрудников'
