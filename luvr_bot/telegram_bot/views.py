@@ -126,7 +126,7 @@ def apply_flow(update, context):
             context.bot.send_message(
                 chat_id=chat.id,
                 text='Пожалуйста, отправьте свой ИИН (кнопка ИИН)',
-                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons, additional_buttons], one_time_keyboard=True,
                                                  resize_keyboard=True
                                                  ))
             return
@@ -134,7 +134,7 @@ def apply_flow(update, context):
             context.bot.send_message(
                 chat_id=chat.id,
                 text='Пожалуйста, отправьте свои ФИО (кнопка ФИО)',
-                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons, additional_buttons], one_time_keyboard=True,
                                                  resize_keyboard=True
                                                  ))
             return
@@ -161,9 +161,7 @@ def apply_flow(update, context):
             context.bot.send_message(
                 chat_id=chat.id,
                 text=f'Для вас на должность {job_request.employee_position} были созданы назначения на следующие даты: {" ".join(dates)}',
-                reply_markup=ReplyKeyboardMarkup([additional_buttons], one_time_keyboard=True,
-                                                 resize_keyboard=True
-                                                 ))
+                reply_markup=ReplyKeyboardRemove())
         else:
             context.bot.send_message(
                 chat_id=chat.id,
@@ -211,7 +209,7 @@ def main_func(update, context):
         return apply_flow(update, context)
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
-    if not employee and not has_contact_in_message:
+    if (not employee or not employee.phone_number) and not has_contact_in_message:
         phone_button = KeyboardButton(text='Отправить номер телефона', request_contact=True)
         context.bot.send_message(chat_id=chat.id,
                                  text=f'Пожалуйста, отправьте мне свой номер телефона для регистрации '
