@@ -116,6 +116,7 @@ class Employee(models.Model):
     full_name = models.CharField(max_length=300, verbose_name='ФИО сотрудника', null=True, blank=True)
     current_job_request = models.ForeignKey(JobRequest, on_delete=models.CASCADE, null=True, blank=True, verbose_name='текущая заявка')
     job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
+    message_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус опроса')
 
     class Meta:
         verbose_name = 'Сотрудник'
@@ -144,6 +145,7 @@ class EmployeeGeoPosition(models.Model):
     latitude = models.CharField(max_length=300, verbose_name='широта')
     longitude = models.CharField(max_length=300, verbose_name='долгота')
     geo_positions_date = models.DateTimeField(auto_now=True, verbose_name='дата внесения гео позиций')
+
 
     class Meta:
         verbose_name = 'Геопозиция сотрудника'
