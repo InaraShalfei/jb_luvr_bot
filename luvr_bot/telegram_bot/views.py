@@ -23,6 +23,8 @@ def apply_flow(update, context):
 
     job_request = employee.current_job_request
     default_buttons = ['Отмена', 'OK']
+    # TODO 1 if no surname, add Surname button to default
+    # TODO 1 if no IIN, add IIN button to default
     buttons = []
     delta = datetime.timedelta(days=1)
     job_request_date = job_request.date_start
@@ -32,6 +34,9 @@ def apply_flow(update, context):
         job_request_date += delta
 
     text = update.message.text
+    #TODO 3 if status=waiting for IIN, employee.IIN=text, status=empty, send_msg=continue, delete IIN button, if IIN is invalid, status not changed
+    # TODO 3 if status=waiting for surname, employee.surname=text, status=empty, delete surname button
+
 
     if text.startswith('/start jobrequest'):
         name = update.message.chat.first_name
@@ -43,6 +48,8 @@ def apply_flow(update, context):
                                              resize_keyboard=True)
         )
         return
+    #TODO 2 if text is IIN, status to waiting for IIN, send_mesg = Write IIN
+    # TODO 2 if text is surname, status to waiting for surname, send_mesg = Write surname
     elif text == 'Отмена':
         employee.job_request_draft = None
         employee.save()
