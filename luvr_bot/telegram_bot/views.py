@@ -122,7 +122,23 @@ def apply_flow(update, context):
         return
 
     elif text == 'OK':
-        #TODO if not IIN or full_name, send_msg = write full_name or iin, not save
+        if employee.INN is None:
+            context.bot.send_message(
+                chat_id=chat.id,
+                text='Пожалуйста, отправьте свой ИИН (кнопка ИИН)',
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                                 resize_keyboard=True
+                                                 ))
+            return
+        if employee.full_name is None:
+            context.bot.send_message(
+                chat_id=chat.id,
+                text='Пожалуйста, отправьте свои ФИО (кнопка ФИО)',
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                                 resize_keyboard=True
+                                                 ))
+            return
+
         real_assigned_dates = []
         for date in employee.job_request_draft.split():
             shift_date = datetime.datetime.strptime(date, '%d.%m.%Y')
