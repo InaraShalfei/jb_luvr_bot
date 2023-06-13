@@ -25,6 +25,11 @@ def apply_flow(update, context):
     default_buttons = ['Отмена', 'OK']
     # TODO 1 if no surname, add Surname button to default
     # TODO 1 if no IIN, add IIN button to default
+    if employee.INN is None:
+        default_buttons.append('ИИН')
+    elif employee.full_name is None:
+        default_buttons.append('ФИО')
+
     buttons = []
     delta = datetime.timedelta(days=1)
     job_request_date = job_request.date_start
@@ -34,11 +39,35 @@ def apply_flow(update, context):
         job_request_date += delta
 
     text = update.message.text
-    #TODO 3 if status=waiting for IIN, employee.IIN=text, status=empty, send_msg=continue, delete IIN button, if IIN is invalid, status not changed
+    # TODO 3 if status=waiting for IIN, employee.IIN=text, status=empty, send_msg=continue, delete IIN button, if IIN is invalid, status not changed
+    if employee.message_status == 'waiting for IIN':
+        if text.is_valid():
+            employee.INN = text
+            employee.message_status = None
+            default_buttons.remove('ИИН')
+            context.bot.send_message(
+                chat_id=chat.id,
+                text=f'Пожалуйста, продолжите выбор',
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                                 resize_keyboard=True)
+            )
+            return
+
     # TODO 3 if status=waiting for surname, employee.surname=text, status=empty, delete surname button
+    elif employee.message_status == 'waiting for full_name':
+        if text.is_valid():
+            employee.full_name = text
+            employee.message_status = None
+            default_buttons.remove('ФИО')
+            context.bot.send_message(
+                chat_id=chat.id,
+                text=f'Пожалуйста, продолжите выбор',
+                reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                                 resize_keyboard=True)
+            )
+            return
 
-
-    if text.startswith('/start jobrequest'):
+    elif text.startswith('/start jobrequest'):
         name = update.message.chat.first_name
         context.bot.send_message(chat_id=chat.id, text=f'Добрый день, {name}')
         context.bot.send_message(
@@ -48,8 +77,27 @@ def apply_flow(update, context):
                                              resize_keyboard=True)
         )
         return
-    #TODO 2 if text is IIN, status to waiting for IIN, send_mesg = Write IIN
+    # TODO 2 if text is IIN, status to waiting for IIN, send_mesg = Write IIN
+    elif text == 'ИИН':
+        employee.message_status = 'waiting for IIN'
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Напишите свой ИИН (12 цифр)',
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
+        return
+
     # TODO 2 if text is surname, status to waiting for surname, send_mesg = Write surname
+    elif text == 'ФИО':
+        employee.message_status = 'waiting for full_name'
+        context.bot.send_message(
+            chat_id=chat.id,
+            text=f'Напишите свое имя и фамилию (как в удостоверении личности)',
+            reply_markup=ReplyKeyboardMarkup([buttons, default_buttons], one_time_keyboard=True,
+                                             resize_keyboard=True)
+        )
+        return
     elif text == 'Отмена':
         employee.job_request_draft = None
         employee.save()
