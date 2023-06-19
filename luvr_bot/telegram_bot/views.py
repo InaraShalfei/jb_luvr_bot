@@ -7,6 +7,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
+from .jumisbar_api import JumisGo
 from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
 from geopy.distance import geodesic as GD
 from django.db.models import Q
@@ -341,6 +342,9 @@ def start(update, context):
 
     else:
         context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
+        channels_dict = {'Кассир': '@kassir_jumisbar', 'Повар': '@povar_jumisbar', 'Продавец': '@provadets_jumisbar'}
+        api = JumisGo('https://admin.jumisgo.kz/api/')
+        api.get_vacancies(context.bot, channels_dict)
         main_func(update, context)
 
 
