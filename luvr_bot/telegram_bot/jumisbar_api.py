@@ -6,7 +6,9 @@ class JumisGo:
         self.host = host
 
     def get_vacancies(self, bot, channels):
-        response = requests.get(self.host + '/vacancy/get')
+        url = self.host + '/api/vacancy/get'
+        print(url)
+        response = requests.get(url)
         print(response.text)
         vacancies = response.json()['data']
         for vacancy in vacancies:
@@ -18,7 +20,7 @@ class JumisGo:
             text2 = f'✅Оплата: {rate} тнг/час\nt.me/@jb_luvr_bot?start=jobrequest'
 
             shifts = {}
-            schedule = vacancy['schedule']
+            schedule = vacancy['schedules']
             for shift in schedule:
                 shift_start = shift['start_at']
                 shift_end = shift['finish_at']
