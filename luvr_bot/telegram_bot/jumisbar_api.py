@@ -17,7 +17,7 @@ class JumisGo:
             position = vacancy['title']
             rate = vacancy['rate_hour']
             text1 = f'{branch} - {address}\n📌{position}\n'
-            text2 = f'✅Оплата: {rate} тнг/час\nt.me/@jb_luvr_bot?start'
+            text2 = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot'
 
             shifts = {}
             schedule = vacancy['schedules']
