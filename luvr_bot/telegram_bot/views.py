@@ -342,7 +342,7 @@ def start(update, context):
 
     else:
         context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-        channels_dict = {'Кассир': '@kassir_jumisbar', 'Повар': '@povar_jumisbar', 'Продавец': '@provadets_jumisbar'}
+        channels_dict = {'Кассир': '@kassir_jumisbar', 'Продавец': '@provadets_jumisbar'}
         api = JumisGo('https://admin.jumisgo.kz')
         api.get_vacancies(context.bot, channels_dict)
         main_func(update, context)
