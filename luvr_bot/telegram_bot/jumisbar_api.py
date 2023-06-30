@@ -37,7 +37,6 @@ class JumisGo:
                 if position in channels:
                     bot.send_message(chat_id=channels[position], text=f'{text1}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{text2}\n')
 
-
     def get_user_id_by_phone(self, phone):
         url = self.host + f'/api/auth/check/phone?phone={phone}'
         response = requests.get(url)
@@ -45,6 +44,9 @@ class JumisGo:
             return response.json()['user_id']
         return None
 
-
-
+    def get_existing_languages(self):
+        url = self.host + '/api/language/get'
+        response = requests.get(url)
+        languages = response.json()['data']
+        return languages
 
