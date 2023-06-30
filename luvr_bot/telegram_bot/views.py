@@ -21,7 +21,20 @@ updater = Updater(token)
 
 def registration_func(update, context, employee: Employee):
     chat = update.effective_chat
-    #TODO ask language if not exist
+    text = update.message.text
+
+    api = JumisGo('https://admin.jumisgo.kz')
+    if employee.language is None:
+        languages = api.get_existing_languages()
+        for language in languages:
+            if text == language['title']:
+                employee.language = language['id']
+                employee.save()
+        if employee.language is None:
+            context.bot.send_message(chat_id=chat.id,
+                                     text=f'Пожалуйста, выберите язык для прохождения регистрации',
+                                     reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]], resize_keyboard=True))
+            return
 
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
@@ -36,7 +49,6 @@ def registration_func(update, context, employee: Employee):
         phone_number = update.message.contact.phone_number
         employee.phone_number = phone_number
         employee.save()
-        api = JumisGo('https://admin.jumisgo.kz')
         jumis_go_user_id = api.get_user_id_by_phone(employee.phone_number)
         if jumis_go_user_id:
             employee.jumis_go_user_id = jumis_go_user_id
@@ -47,12 +59,9 @@ def registration_func(update, context, employee: Employee):
             pass
 
 
-
-
-
 def main_func(update, context):
     chat = update.effective_chat
-    employee = Employee.objects.get_or_create(chat_id=chat.id)
+    employee, created = Employee.objects.get_or_create(chat_id=chat.id)
 
     if employee.jumis_go_user_id is None:
         return registration_func(update, context, employee)
