@@ -34,7 +34,16 @@ class JumisGo:
                 shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
                 shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
                 shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
-                bot.send_message(chat_id=channels[position], text=f'{text1}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{text2}\n')
+                if position in channels:
+                    bot.send_message(chat_id=channels[position], text=f'{text1}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{text2}\n')
+
+
+    def get_user_id_by_phone(self, phone):
+        url = self.host + f'/api/auth/check/phone?phone={phone}'
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()['user_id']
+        return None
 
 
 
