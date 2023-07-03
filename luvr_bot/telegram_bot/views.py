@@ -8,7 +8,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
-from .exceptions import VerificationFailedException
+from .exceptions import VerificationFailedException, RegistrationFailedException
 from .jumisbar_api import JumisGo
 from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
 from geopy.distance import geodesic as GD
@@ -66,7 +66,7 @@ def registration_func(update, context, employee: Employee):
             except VerificationFailedException:
                 context.bot.send_message(chat_id=chat.id,
                                          text='Верификация телефона не удалась. Введите код еще раз')
-            return
+        return
     if employee.token is None:
         regex = r'^(\d{4,6})$'
         pattern = re.compile(regex)
@@ -77,8 +77,27 @@ def registration_func(update, context, employee: Employee):
             employee.token = text
             employee.save()
             context.bot.send_message(chat_id=chat.id,
+                                     text='Напишите ваши ФИО')
+        return
+    if employee.full_name is None:
+        employee.full_name = text
+        employee.save()
+        context.bot.send_message(chat_id=chat.id,
+                                 text='Напишите свой ИНН (12 цифр)')
+        return
+    if employee.INN is None:
+        regex = r'^(\d{12})$'
+        pattern = re.compile(regex)
+        if not pattern.match(text):
+            context.bot.send_message(chat_id=chat.id,
+                                     text='Введите ИИН в нужном формате (12 цифр)')
+        else:
+            employee.INN = text
+            employee.save()
+            context.bot.send_message(chat_id=chat.id,
                                      text='Придумайте и напишите пароль')
         return
+
     if employee.password is None:
         password = text
         if len(password) < 8:
@@ -87,10 +106,16 @@ def registration_func(update, context, employee: Employee):
         else:
             employee.password = password
             employee.save()
-        return
+            try:
+                api.user_register(employee.full_name, employee.phone_number,
+                                  employee.password, employee.token)
+                context.bot.send_message(chat_id=chat.id,
+                                         text='Спасибо, вы успешно прошли регистрацию в нашем приложении!')
 
-
-
+            except RegistrationFailedException:
+                context.bot.send_message(chat_id=chat.id,
+                                         text='Верификация телефона не удалась. Введите код еще раз')
+    return
 
 
 def main_func(update, context):
