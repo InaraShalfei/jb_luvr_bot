@@ -34,7 +34,8 @@ def registration_func(update, context, employee: Employee):
         if employee.language is None:
             context.bot.send_message(chat_id=chat.id,
                                      text=f'Пожалуйста, выберите язык для прохождения регистрации',
-                                     reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]], resize_keyboard=True))
+                                     reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]], resize_keyboard=True,
+                                                                      one_time_keyboard=True))
             return
 
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
@@ -44,7 +45,8 @@ def registration_func(update, context, employee: Employee):
         context.bot.send_message(chat_id=chat.id,
                                  text=f'Пожалуйста, отправьте мне свой номер телефона для регистрации '
                                       f'(кнопка "Отправить номер телефона")',
-                                 reply_markup=ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True))
+                                 reply_markup=ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True,
+                                                                  one_time_keyboard=True))
         return
     if has_contact_in_message:
         phone_number = update.message.contact.phone_number
@@ -75,7 +77,17 @@ def registration_func(update, context, employee: Employee):
             employee.token = text
             employee.save()
             context.bot.send_message(chat_id=chat.id,
-                                     text='Придумайте и напишиет пароль')
+                                     text='Придумайте и напишите пароль')
+        return
+    if employee.password is None:
+        password = text
+        if len(password) < 8:
+            context.bot.send_message(chat_id=chat.id,
+                                     text='Для надежности пароль должен быть больше 8 знаков. Отправьте пароль еще раз')
+        else:
+            employee.password = password
+            employee.save()
+        return
 
 
 
