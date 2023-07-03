@@ -2,6 +2,8 @@ import datetime
 
 import requests as requests
 
+from .exceptions import VerificationFailedException
+
 
 class JumisGo:
     def __init__(self, host):
@@ -50,3 +52,9 @@ class JumisGo:
         languages = response.json()['data']
         return languages
 
+    def request_phone_verification(self, phone):
+        url = self.host + '/api/auth/send/token'
+        data = {'phone': phone}
+        response = requests.post(url, json=data)
+        if response.status_code != 200:
+            raise VerificationFailedException
