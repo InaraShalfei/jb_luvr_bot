@@ -33,8 +33,8 @@ class BranchInline(admin.TabularInline):
 
 
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'language', 'jumis_go_user_id', 'chat_id', 'INN', 'full_name', 'current_job_request', 'job_request_draft',
-                    'message_status')
+    list_display = ('phone_number', 'language', 'jumis_go_user_id', 'token', 'password', 'chat_id', 'INN', 'full_name',
+                    'current_job_request', 'job_request_draft', 'message_status')
     inlines = [JobRequestAssignmentInline]
     readonly_fields = ['chat_id']
 
