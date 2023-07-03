@@ -118,6 +118,8 @@ class Employee(models.Model):
     current_job_request = models.ForeignKey(JobRequest, on_delete=models.CASCADE, null=True, blank=True, verbose_name='текущая заявка')
     job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
     message_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус опроса')
+    token = models.CharField(unique=True, max_length=16, verbose_name='токен', blank=True, null=True)
+    password = models.CharField(unique=True, max_length=50, verbose_name='пароль', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Сотрудник'
