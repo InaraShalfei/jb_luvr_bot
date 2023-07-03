@@ -8,6 +8,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
+from .exceptions import VerificationFailedException
 from .jumisbar_api import JumisGo
 from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
 from geopy.distance import geodesic as GD
@@ -56,7 +57,28 @@ def registration_func(update, context, employee: Employee):
             context.bot.send_message(chat_id=chat.id,
                                      text='Вы уже прошли регистрацию')
         else:
-            pass
+            try:
+                api.request_phone_verification(employee.phone_number)
+                context.bot.send_message(chat_id=chat.id,
+                                         text='Напишите код из смс')
+            except VerificationFailedException:
+                context.bot.send_message(chat_id=chat.id,
+                                         text='Верификация телефона не удалась. Введите код еще раз')
+            return
+    if employee.token is None:
+        regex = r'^(\d{4,6})$'
+        pattern = re.compile(regex)
+        if not pattern.match(text):
+            context.bot.send_message(chat_id=chat.id,
+                                     text='Код неверный, введите код еще раз')
+        else:
+            employee.token = text
+            employee.save()
+            context.bot.send_message(chat_id=chat.id,
+                                     text='Придумайте и напишиет пароль')
+
+
+
 
 
 def main_func(update, context):
