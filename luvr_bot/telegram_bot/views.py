@@ -8,6 +8,7 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
 
+from .dictionaries import translates
 from .exceptions import VerificationFailedException, RegistrationFailedException
 from .jumisbar_api import JumisGo
 from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
@@ -33,7 +34,7 @@ def registration_func(update, context, employee: Employee):
                 employee.save()
         if employee.language is None:
             context.bot.send_message(chat_id=chat.id,
-                                     text=f'Пожалуйста, выберите язык для прохождения регистрации',
+                                     text=f'Тіркелу үшін тілді таңдаңыз.\nПожалуйста, выберите язык для прохождения регистрации',
                                      reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]], resize_keyboard=True,
                                                                       one_time_keyboard=True))
             return
@@ -41,10 +42,10 @@ def registration_func(update, context, employee: Employee):
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
     if (not employee or not employee.phone_number) and not has_contact_in_message:
-        phone_button = KeyboardButton(text='Отправить номер телефона', request_contact=True)
+        phone_button = KeyboardButton(text='Отправить номер телефона' if employee.language == 2 else 'Телефон нөмірін жіберіңіз',
+                                      request_contact=True)
         context.bot.send_message(chat_id=chat.id,
-                                 text=f'Пожалуйста, отправьте мне свой номер телефона для регистрации '
-                                      f'(кнопка "Отправить номер телефона")',
+                                 text=translates['phone_number'][employee.language],
                                  reply_markup=ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True,
                                                                   one_time_keyboard=True))
         return
@@ -57,52 +58,52 @@ def registration_func(update, context, employee: Employee):
             employee.jumis_go_user_id = jumis_go_user_id
             employee.save()
             context.bot.send_message(chat_id=chat.id,
-                                     text='Вы уже прошли регистрацию')
+                                     text=translates['already_registered'][employee.language])
         else:
             try:
                 api.request_phone_verification(employee.phone_number)
                 context.bot.send_message(chat_id=chat.id,
-                                         text='Напишите код из смс')
+                                         text=translates['sms_code'][employee.language])
             except VerificationFailedException:
                 context.bot.send_message(chat_id=chat.id,
-                                         text='Верификация телефона не удалась. Введите код еще раз')
+                                         text=translates['sms_verification_failed'][employee.language])
         return
     if employee.token is None:
         regex = r'^(\d{4,6})$'
         pattern = re.compile(regex)
         if not pattern.match(text):
             context.bot.send_message(chat_id=chat.id,
-                                     text='Код неверный, введите код еще раз')
+                                     text=translates['sms_cod_incorrect'][employee.language])
         else:
             employee.token = text
             employee.save()
             context.bot.send_message(chat_id=chat.id,
-                                     text='Напишите ваши ФИО')
+                                     text=translates['full_name'][employee.language])
         return
     if employee.full_name is None:
         employee.full_name = text
         employee.save()
         context.bot.send_message(chat_id=chat.id,
-                                 text='Напишите свой ИНН (12 цифр)')
+                                 text=translates['inn'][employee.language])
         return
     if employee.INN is None:
         regex = r'^(\d{12})$'
         pattern = re.compile(regex)
         if not pattern.match(text):
             context.bot.send_message(chat_id=chat.id,
-                                     text='Введите ИИН в нужном формате (12 цифр)')
+                                     text=translates['inn_incorrect'][employee.language])
         else:
             employee.INN = text
             employee.save()
             context.bot.send_message(chat_id=chat.id,
-                                     text='Придумайте и напишите пароль')
+                                     text=translates['password'][employee.language])
         return
 
     if employee.password is None:
         password = text
         if len(password) < 8:
             context.bot.send_message(chat_id=chat.id,
-                                     text='Для надежности пароль должен быть больше 8 знаков. Отправьте пароль еще раз')
+                                     text=translates['password_invalid'][employee.language])
         else:
             employee.password = password
             employee.save()
@@ -110,11 +111,11 @@ def registration_func(update, context, employee: Employee):
                 api.user_register(employee.full_name, employee.phone_number,
                                   employee.password, employee.token)
                 context.bot.send_message(chat_id=chat.id,
-                                         text='Спасибо, вы успешно прошли регистрацию в нашем приложении!')
+                                         text=translates['successful_registration'][employee.language])
 
             except RegistrationFailedException:
                 context.bot.send_message(chat_id=chat.id,
-                                         text='Верификация телефона не удалась. Введите код еще раз')
+                                         text=translates['registration_failed'][employee.language])
     return
 
 
