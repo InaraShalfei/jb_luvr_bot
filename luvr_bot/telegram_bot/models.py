@@ -140,6 +140,18 @@ class Employee(models.Model):
             raise ValidationError('ИИН не должен быть менее 12 цифр')
 
 
+class EmployeeList(models.Model):
+    full_name = models.CharField(max_length=100, verbose_name='ФИО', blank=True, null=True)
+    inn = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        verbose_name = 'Список сотрудников'
+        verbose_name_plural = 'Списки сотрудников'
+
+
 class EmployeeGeoPosition(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='geo_positions', verbose_name='сотрудник')
     latitude = models.CharField(max_length=300, verbose_name='широта')
