@@ -5,6 +5,14 @@ import requests as requests
 from .exceptions import VerificationFailedException, RegistrationFailedException
 
 
+def post_request_proxy(url, json, headers=None):
+    response = requests.post(url, json=json, headers=headers)
+    print(json)
+    print(response.status_code)
+    print(response.json())
+    return response
+
+
 class JumisGo:
     def __init__(self, host):
         self.host = host
@@ -61,7 +69,7 @@ class JumisGo:
     def request_phone_verification(self, phone):
         url = self.host + '/api/auth/send/token'
         data = {'phone': phone}
-        response = requests.post(url, json=data)
+        response = post_request_proxy(url, json=data)
         if response.status_code != 200:
             raise VerificationFailedException
 
@@ -72,6 +80,7 @@ class JumisGo:
             'phone': phone,
             'city_id': city,
             'password': password,
+            'disability_group': False,
             'password_confirmation': password,
             'token': token
         }
@@ -79,10 +88,9 @@ class JumisGo:
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         }
-        response = requests.post(url, json=data, headers=headers)
+        response = post_request_proxy(url, json=data, headers=headers)
         if response.status_code != 200:
             raise RegistrationFailedException(response.json())
-        print(response.json())
         return response.json()
 
 
