@@ -42,7 +42,7 @@ def registration_func(update, context, employee: Employee):
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
     if (not employee or not employee.phone_number) and not has_contact_in_message:
-        phone_button = KeyboardButton(text='Отправить номер телефона' if employee.language == 2 else 'Телефон нөмірін жіберіңіз',
+        phone_button = KeyboardButton(text='Отправить номер телефона' if employee.language == '2' else 'Телефон нөмірін жіберіңіз',
                                       request_contact=True)
         context.bot.send_message(chat_id=chat.id,
                                  text=translates['phone_number'][employee.language],
@@ -108,7 +108,7 @@ def registration_func(update, context, employee: Employee):
         cities = api.get_existing_cities()
         for city in cities:
             if text == city['title']:
-                employee.city = city['id']
+                employee.city = int(city['id'])
                 employee.save()
         context.bot.send_message(chat_id=chat.id,
                                      text=translates['password'][employee.language])
