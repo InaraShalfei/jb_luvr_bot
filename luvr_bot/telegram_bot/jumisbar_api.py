@@ -52,6 +52,12 @@ class JumisGo:
         languages = response.json()['data']
         return languages
 
+    def get_existing_cities(self):
+        url = self.host + '/api/city/get'
+        response = requests.get(url)
+        cities = response.json()['data']
+        return cities
+
     def request_phone_verification(self, phone):
         url = self.host + '/api/auth/send/token'
         data = {'phone': phone}
@@ -73,3 +79,5 @@ class JumisGo:
             raise RegistrationFailedException(response.json())
         print(response.text)
         print(response.json())
+
+
