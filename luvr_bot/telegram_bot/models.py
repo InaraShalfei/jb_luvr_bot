@@ -120,7 +120,7 @@ class Employee(models.Model):
     message_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус опроса')
     token = models.IntegerField(verbose_name='токен', blank=True, null=True)
     password = models.CharField(unique=True, max_length=50, verbose_name='пароль', blank=True, null=True)
-    city = models.CharField(unique=True, max_length=50, verbose_name='город', blank=True, null=True)
+    city = models.IntegerField(unique=True, verbose_name='город', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Сотрудник'
@@ -137,7 +137,7 @@ class Employee(models.Model):
         elif not str(self.INN).isdigit():
             raise ValidationError('Не допускаются другие элементы, кроме цифр')
         elif len(self.INN) < 12:
-            raise ValidationError('ИИН не должен быть менее 12 цифр')
+            raise ValidationError('ИИН должен быть 12 цифр')
 
 
 class EmployeeList(models.Model):
