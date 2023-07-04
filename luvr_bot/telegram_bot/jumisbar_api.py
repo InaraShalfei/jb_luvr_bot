@@ -75,9 +75,14 @@ class JumisGo:
             'password_confirmation': password,
             'token': token
         }
-        response = requests.post(url, json=data)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=data, headers=headers)
         if response.status_code != 200:
             raise RegistrationFailedException(response.json())
         print(response.json())
+        return response.json()
 
 
