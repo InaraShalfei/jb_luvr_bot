@@ -30,7 +30,7 @@ def registration_func(update, context, employee: Employee):
         languages = api.get_existing_languages()
         for language in languages:
             if text == language['title']:
-                employee.language = language['id']
+                employee.language = str(language['id'])
                 employee.save()
         if employee.language is None:
             context.bot.send_message(chat_id=chat.id,
@@ -95,23 +95,24 @@ def registration_func(update, context, employee: Employee):
         else:
             employee.INN = text
             employee.save()
+            cities = api.get_existing_cities()
             context.bot.send_message(chat_id=chat.id,
-                                     text=translates['password'][employee.language])
+                                     text=translates['cities'][employee.language],
+                                     reply_markup=ReplyKeyboardMarkup([[city['title'] for city in cities]],
+                                                                      resize_keyboard=True,
+                                                                      one_time_keyboard=True)
+                                     )
         return
 
     if employee.city is None:
         cities = api.get_existing_cities()
         for city in cities:
             if text == city['title']:
-                employee.language = city['id']
+                employee.city = city['id']
                 employee.save()
-        if employee.city is None:
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['cities'][employee.language],
-                                     reply_markup=ReplyKeyboardMarkup([[city['title'] for city in cities]],
-                                                                      resize_keyboard=True,
-                                                                      one_time_keyboard=True))
-            return
+        context.bot.send_message(chat_id=chat.id,
+                                     text=translates['password'][employee.language])
+        return
 
     if employee.password is None:
         password = text
@@ -122,15 +123,16 @@ def registration_func(update, context, employee: Employee):
             employee.password = password
             employee.save()
             try:
-                api.user_register(employee.full_name, employee.phone_number, employee.city,
+                employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
                                   employee.password, employee.token)
+                employee.save()
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['successful_registration'][employee.language])
 
             except RegistrationFailedException:
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['registration_failed'][employee.language])
-    return
+        return
 
 
 def main_func(update, context):
