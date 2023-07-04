@@ -65,11 +65,12 @@ class JumisGo:
         if response.status_code != 200:
             raise VerificationFailedException
 
-    def user_register(self, name, phone, password, token):
+    def user_register(self, name, phone, city, password, token):
         url = self.host + '/api/auth/register'
         data = {
             'name': name,
             'phone': phone,
+            'city_id': city,
             'password': password,
             'password_confirmation': password,
             'token': token
@@ -77,7 +78,6 @@ class JumisGo:
         response = requests.post(url, json=data)
         if response.status_code != 200:
             raise RegistrationFailedException(response.json())
-        print(response.text)
         print(response.json())
 
 
