@@ -122,7 +122,7 @@ def registration_func(update, context, employee: Employee):
             employee.password = password
             employee.save()
             try:
-                api.user_register(employee.full_name, employee.phone_number,
+                api.user_register(employee.full_name, employee.phone_number, employee.city,
                                   employee.password, employee.token)
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['successful_registration'][employee.language])
