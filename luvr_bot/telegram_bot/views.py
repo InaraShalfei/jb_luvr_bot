@@ -99,6 +99,20 @@ def registration_func(update, context, employee: Employee):
                                      text=translates['password'][employee.language])
         return
 
+    if employee.city is None:
+        cities = api.get_existing_cities()
+        for city in cities:
+            if text == city['title']:
+                employee.language = city['id']
+                employee.save()
+        if employee.city is None:
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['cities'][employee.language],
+                                     reply_markup=ReplyKeyboardMarkup([[city['title'] for city in cities]],
+                                                                      resize_keyboard=True,
+                                                                      one_time_keyboard=True))
+            return
+
     if employee.password is None:
         password = text
         if len(password) < 8:
