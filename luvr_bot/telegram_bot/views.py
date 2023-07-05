@@ -31,6 +31,21 @@ EMPLOYEE_PASSWORD = 'password'
 
 api = JumisGo('https://admin.jumisgo.kz')
 
+
+def send_error_message(context, error, employee:Employee):
+    error_employee_field_dict = {
+        'name': employee.full_name,
+        'password': employee.password,
+        'doc_iin': employee.INN,
+        'token': employee.token,
+        'city_id': employee.city,
+        'phone': employee.phone_number
+    }
+    context.bot.send_message(chat_id=employee.chat_id,
+                             text=translates[f'{error}_failed'][employee.language])
+    error_employee_field_dict[error] = None
+    employee.save()
+
 def get_next_empty_field(employee: Employee):
     if employee.language is None:
         return EMPLOYEE_LANGUAGE
@@ -195,12 +210,15 @@ def registration_func(update, context, employee: Employee):
                                      text=translates['successful_registration'][employee.language])
 
         except RegistrationFailedException as e:
-            print(e.args[0]['errors'])
-            # for error in errors
-            #   if error == 'name': employee.name = None, send_message(name is incorrect)
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['registration_failed'][employee.language])
+            print(e.args[0]['errors'])
+            if 'errors' in e.args[0]:
+                errors = e.args[0]['errors']
+                for error in errors:
+                    send_error_message(context, error, employee)
             ask(employee, get_next_empty_field(employee), context)
+            return
 
 
 def main_func(update, context):
