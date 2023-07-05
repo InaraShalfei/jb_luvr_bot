@@ -13,6 +13,14 @@ def post_request_proxy(url, json, headers=None):
     return response
 
 
+def get_request_proxy(url, headers=None):
+    response = requests.get(url, headers=headers)
+    print(url)
+    print(response.status_code)
+    print(response.json())
+    return response
+
+
 class JumisGo:
     def __init__(self, host):
         self.host = host
@@ -49,7 +57,7 @@ class JumisGo:
 
     def get_user_id_by_phone(self, phone):
         url = self.host + f'/api/auth/check/phone?phone={phone}'
-        response = requests.get(url)
+        response = get_request_proxy(url)
         if response.status_code == 200:
             return response.json()['user_id']
         return None
