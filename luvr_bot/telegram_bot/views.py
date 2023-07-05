@@ -112,8 +112,17 @@ def registration_func(update, context, employee: Employee):
             if text == city['title']:
                 employee.city = int(city['id'])
                 employee.save()
-        context.bot.send_message(chat_id=chat.id,
-                                     text=translates['password'][employee.language])
+        if employee.city is None:
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['cities'][employee.language],
+                                     reply_markup=ReplyKeyboardMarkup(
+                                         np.array_split([city['title'] for city in cities], math.ceil(len(cities) / 3)),
+                                         resize_keyboard=True,
+                                         one_time_keyboard=True)
+                                     )
+        else:
+            context.bot.send_message(chat_id=chat.id,
+                                         text=translates['password'][employee.language])
         return
 
     if employee.password is None:
