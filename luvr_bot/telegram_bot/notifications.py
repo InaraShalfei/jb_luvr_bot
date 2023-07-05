@@ -118,7 +118,17 @@ def send_shifts_end_missing_reminder():
 
 
 def notify_about_vacancies():
-    channels = {'Кассир': '@kassir_jumisbar', 'Продавец': '@prodavets_jumisbar'}
+    channels = {
+        'Продавец': 'https://t.me/+crT4-riWQFI1MjYy',
+        'Грузчик': 'https://t.me/+7oIiSSoBxU81NmY6',
+        'Кассир': 'https://t.me/+Z-Bx_3ESYjhmYzYy',
+        'Кондитер': 'https://t.me/+D3PWC-k5-hBhNjYy',
+        'Повар': 'https://t.me/+Rn5pr75Xf3NlMDU6',
+        'Пекарь': 'https://t.me/+sg4QDVzwVhRjMmIy',
+        'Мясник': 'https://t.me/+w2p_bMRZxyUxOWMy',
+        'Тележечник': 'https://t.me/+iqoes7ZCSgE4NGMy',
+        'Кухонный работник': 'https://t.me/+sp4KDwa099hkYWI6',
+    }
     vacancies = api.get_vacancies()
     for vacancy in vacancies:
         vacancy_id = vacancy['branch_address']
