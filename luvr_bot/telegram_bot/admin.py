@@ -17,7 +17,7 @@ token = os.getenv('TELEGRAM_TOKEN')
 bot = Bot(token=token)
 
 from .models import Employee, EmployeeGeoPosition, Branch, JobRequest, JobRequestAssignment, Shift, Company, CustomUser, \
-    ProxyShift, EmployeeList
+    ProxyShift, EmployeeList, Vacancy
 
 
 class JobRequestAssignmentInline(admin.TabularInline):
@@ -251,6 +251,10 @@ class EmployeeListAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'inn', )
 
 
+class VacancyAdmin(admin.ModelAdmin):
+    list_display = ('vacancy_id', 'vacancy_name',)
+
+
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(EmployeeGeoPosition, EmployeeGeoPositionAdmin)
 admin.site.register(Branch, BranchAdmin)
@@ -261,3 +265,4 @@ admin.site.register(Company, CompanyAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(ProxyShift, ProxyShiftAdmin)
 admin.site.register(EmployeeList, EmployeeListAdmin)
+admin.site.register(Vacancy, VacancyAdmin)

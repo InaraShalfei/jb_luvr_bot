@@ -16,6 +16,18 @@ token = os.getenv('TELEGRAM_TOKEN')
 bot = Bot(token=token)
 
 
+class Vacancy(models.Model):
+    vacancy_id = models.IntegerField(unique=True, verbose_name='id вакансии')
+    vacancy_name = models.CharField(max_length=300,  verbose_name='долгота', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Вакансия'
+        verbose_name_plural = 'Вакансии'
+
+    def __str__(self):
+        return self.vacancy_name
+
+
 class Company(models.Model):
     name = models.CharField(max_length=250,  verbose_name='название компании')
 
