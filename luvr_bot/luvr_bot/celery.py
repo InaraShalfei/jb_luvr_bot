@@ -15,12 +15,3 @@ app = Celery(
 
 if __name__ == '__main__':
     app.start()
-
-# How to run:
-# 1. Ensure you're in `jb_luvr_bot` dir
-# 2. `cd luvr_bot`
-# 3. export `DJANGO_SETTINGS_MODULE="luvr_bot.settings"; celery -A luvr_bot worker --loglevel=DEBUG`
-# 4. Open new terminal.
-# 5. Ensure you're in `jb_luvr_bot` dir
-# 6. `cd luvr_bot`
-# 7. export `DJANGO_SETTINGS_MODULE="luvr_bot.settings"; celery -A luvr_bot beat --loglevel=DEBUG`

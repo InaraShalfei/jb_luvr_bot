@@ -12,4 +12,4 @@ Install docker:
 https://docs.docker.com/engine/install/ubuntu/
 
 Run container:
-docker run -d -p 5672:5672 bitnami/rabbitmq:latest
+sudo docker run -d -p 5672:5672 bitnami/rabbitmq:latest
