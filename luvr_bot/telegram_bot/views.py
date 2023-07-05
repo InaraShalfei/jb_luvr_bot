@@ -22,6 +22,10 @@ token = os.getenv('TELEGRAM_TOKEN')
 updater = Updater(token)
 
 
+def arrange_buttons(buttons):
+    return np.array_split(buttons, math.ceil(len(buttons) / 3))
+
+
 def registration_func(update, context, employee: Employee):
     chat = update.effective_chat
     text = update.message.text
@@ -100,7 +104,7 @@ def registration_func(update, context, employee: Employee):
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['cities'][employee.language],
                                      reply_markup=ReplyKeyboardMarkup(
-                                         np.array_split([city['title'] for city in cities], math.ceil(len(cities)/3)),
+                                         arrange_buttons([city['title'] for city in cities]),
                                          resize_keyboard=True,
                                          one_time_keyboard=True)
                                      )
@@ -116,7 +120,7 @@ def registration_func(update, context, employee: Employee):
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['cities'][employee.language],
                                      reply_markup=ReplyKeyboardMarkup(
-                                         np.array_split([city['title'] for city in cities], math.ceil(len(cities) / 3)),
+                                         arrange_buttons([city['title'] for city in cities]),
                                          resize_keyboard=True,
                                          one_time_keyboard=True)
                                      )
