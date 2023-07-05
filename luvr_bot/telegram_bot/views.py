@@ -21,6 +21,75 @@ load_dotenv()
 token = os.getenv('TELEGRAM_TOKEN')
 updater = Updater(token)
 
+EMPLOYEE_LANGUAGE = 'language'
+EMPLOYEE_PHONE_NUMBER = 'phone_number'
+EMPLOYEE_TOKEN = 'token'
+EMPLOYEE_FULL_NAME = 'full_name'
+EMPLOYEE_INN = 'INN'
+EMPLOYEE_CITY = 'city'
+EMPLOYEE_PASSWORD = 'password'
+
+api = JumisGo('https://admin.jumisgo.kz')
+
+def get_next_empty_field(employee: Employee):
+    if employee.language is None:
+        return EMPLOYEE_LANGUAGE
+    if not employee.phone_number:
+        return EMPLOYEE_PHONE_NUMBER
+    if employee.token is None:
+        return EMPLOYEE_TOKEN
+    if employee.full_name is None:
+        return EMPLOYEE_FULL_NAME
+    if employee.INN is None:
+        return EMPLOYEE_INN
+    if employee.city is None:
+        return EMPLOYEE_CITY
+    if employee.password is None:
+        return EMPLOYEE_PASSWORD
+    return None
+
+
+def ask(employee: Employee, next_empty_field, context):
+    if next_empty_field is None:
+        return
+
+    if next_empty_field == EMPLOYEE_LANGUAGE:
+        languages = api.get_existing_languages()
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=f'Тіркелу үшін тілді таңдаңыз.\nПожалуйста, выберите язык для прохождения регистрации',
+                                 reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]],
+                                                                  resize_keyboard=True,
+                                                                  one_time_keyboard=True))
+    elif next_empty_field == EMPLOYEE_PHONE_NUMBER:
+        phone_button = KeyboardButton(text='Отправить номер телефона' if employee.language == '2' else 'Телефон нөмірін жіберіңіз',
+                                      request_contact=True)
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['phone_number'][employee.language],
+                                 reply_markup=ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True,
+                                                                  one_time_keyboard=True))
+    elif next_empty_field == EMPLOYEE_TOKEN:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['sms_code'][employee.language])
+    elif next_empty_field == EMPLOYEE_FULL_NAME:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['full_name'][employee.language])
+    elif next_empty_field == EMPLOYEE_INN:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['inn'][employee.language])
+    elif next_empty_field == EMPLOYEE_CITY:
+        cities = api.get_existing_cities()
+        if employee.city is None:
+            context.bot.send_message(chat_id=employee.chat_id,
+                                     text=translates['cities'][employee.language],
+                                     reply_markup=ReplyKeyboardMarkup(
+                                         arrange_buttons([city['title'] for city in cities]),
+                                         resize_keyboard=True,
+                                         one_time_keyboard=True)
+                                     )
+    elif next_empty_field == EMPLOYEE_PASSWORD:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['password'][employee.language])
+
 
 def arrange_buttons(buttons):
     return np.array_split(buttons, math.ceil(len(buttons) / 3))
@@ -30,33 +99,24 @@ def registration_func(update, context, employee: Employee):
     chat = update.effective_chat
     text = update.message.text
 
-    api = JumisGo('https://admin.jumisgo.kz')
     if employee.language is None:
         languages = api.get_existing_languages()
         for language in languages:
             if text == language['title']:
                 employee.language = str(language['id'])
                 employee.save()
-        if employee.language is None:
-            context.bot.send_message(chat_id=chat.id,
-                                     text=f'Тіркелу үшін тілді таңдаңыз.\nПожалуйста, выберите язык для прохождения регистрации',
-                                     reply_markup=ReplyKeyboardMarkup([[language['title'] for language in languages]], resize_keyboard=True,
-                                                                      one_time_keyboard=True))
-            return
+        ask(employee, get_next_empty_field(employee), context)
+        return
 
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
     if (not employee or not employee.phone_number) and not has_contact_in_message:
-        phone_button = KeyboardButton(text='Отправить номер телефона' if employee.language == '2' else 'Телефон нөмірін жіберіңіз',
-                                      request_contact=True)
-        context.bot.send_message(chat_id=chat.id,
-                                 text=translates['phone_number'][employee.language],
-                                 reply_markup=ReplyKeyboardMarkup([[phone_button]], resize_keyboard=True,
-                                                                  one_time_keyboard=True))
+        ask(employee, get_next_empty_field(employee), context)
         return
     if has_contact_in_message:
         phone_number = update.message.contact.phone_number
         employee.phone_number = phone_number
+        employee.token = None
         employee.save()
         jumis_go_user_id = api.get_user_id_by_phone(employee.phone_number)
         if jumis_go_user_id:
@@ -67,47 +127,40 @@ def registration_func(update, context, employee: Employee):
         else:
             try:
                 api.request_phone_verification(employee.phone_number)
-                context.bot.send_message(chat_id=chat.id,
-                                         text=translates['sms_code'][employee.language])
+                ask(employee, get_next_empty_field(employee), context)
             except VerificationFailedException:
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['sms_verification_failed'][employee.language])
         return
+
     if employee.token is None:
         regex = r'^(\d{4,6})$'
         pattern = re.compile(regex)
         if not pattern.match(text):
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['sms_cod_incorrect'][employee.language])
-        else:
-            employee.token = text
-            employee.save()
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['full_name'][employee.language])
+            return
+        employee.token = text
+        employee.save()
+        ask(employee, get_next_empty_field(employee), context)
         return
+
     if employee.full_name is None:
         employee.full_name = text
         employee.save()
-        context.bot.send_message(chat_id=chat.id,
-                                 text=translates['inn'][employee.language])
+        ask(employee, get_next_empty_field(employee), context)
         return
+
     if employee.INN is None:
         regex = r'^(\d{12})$'
         pattern = re.compile(regex)
         if not pattern.match(text):
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['inn_incorrect'][employee.language])
-        else:
-            employee.INN = text
-            employee.save()
-            cities = api.get_existing_cities()
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['cities'][employee.language],
-                                     reply_markup=ReplyKeyboardMarkup(
-                                         arrange_buttons([city['title'] for city in cities]),
-                                         resize_keyboard=True,
-                                         one_time_keyboard=True)
-                                     )
+            return
+        employee.INN = text
+        employee.save()
+        ask(employee, get_next_empty_field(employee), context)
         return
 
     if employee.city is None:
@@ -116,17 +169,7 @@ def registration_func(update, context, employee: Employee):
             if text == city['title']:
                 employee.city = int(city['id'])
                 employee.save()
-        if employee.city is None:
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['cities'][employee.language],
-                                     reply_markup=ReplyKeyboardMarkup(
-                                         arrange_buttons([city['title'] for city in cities]),
-                                         resize_keyboard=True,
-                                         one_time_keyboard=True)
-                                     )
-        else:
-            context.bot.send_message(chat_id=chat.id,
-                                         text=translates['password'][employee.language])
+        ask(employee, get_next_empty_field(employee), context)
         return
 
     if employee.password is None:
