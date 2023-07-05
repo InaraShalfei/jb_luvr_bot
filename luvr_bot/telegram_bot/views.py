@@ -51,7 +51,7 @@ def get_next_empty_field(employee: Employee):
 
 def ask(employee: Employee, next_empty_field, context):
     if next_empty_field is None:
-        return
+        return False
 
     if next_empty_field == EMPLOYEE_LANGUAGE:
         languages = api.get_existing_languages()
@@ -90,6 +90,8 @@ def ask(employee: Employee, next_empty_field, context):
         context.bot.send_message(chat_id=employee.chat_id,
                                  text=translates['password'][employee.language])
 
+    return True
+
 
 def arrange_buttons(buttons):
     return np.array_split(buttons, math.ceil(len(buttons) / 3))
@@ -105,33 +107,35 @@ def registration_func(update, context, employee: Employee):
             if text == language['title']:
                 employee.language = str(language['id'])
                 employee.save()
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
 
     has_contact_in_message = hasattr(update, 'message') and hasattr(update.message, 'contact') and hasattr(
         update.message.contact, 'phone_number')
     if (not employee or not employee.phone_number) and not has_contact_in_message:
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
+
     if has_contact_in_message:
         phone_number = update.message.contact.phone_number
         employee.phone_number = phone_number
         employee.token = None
         employee.save()
         jumis_go_user_id = api.get_user_id_by_phone(employee.phone_number)
+        jumis_go_user_id = None # todo
         if jumis_go_user_id:
             employee.jumis_go_user_id = jumis_go_user_id
             employee.save()
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['already_registered'][employee.language])
-        else:
-            try:
-                api.request_phone_verification(employee.phone_number)
-                ask(employee, get_next_empty_field(employee), context)
-            except VerificationFailedException:
-                context.bot.send_message(chat_id=chat.id,
-                                         text=translates['sms_verification_failed'][employee.language])
-        return
+            return
+        try:
+            api.request_phone_verification(employee.phone_number)
+            if ask(employee, get_next_empty_field(employee), context):
+                return
+        except VerificationFailedException:
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['sms_verification_failed'][employee.language])
 
     if employee.token is None:
         regex = r'^(\d{4,6})$'
@@ -142,14 +146,14 @@ def registration_func(update, context, employee: Employee):
             return
         employee.token = text
         employee.save()
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
 
     if employee.full_name is None:
         employee.full_name = text
         employee.save()
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
 
     if employee.INN is None:
         regex = r'^(\d{12})$'
@@ -160,8 +164,8 @@ def registration_func(update, context, employee: Employee):
             return
         employee.INN = text
         employee.save()
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
 
     if employee.city is None:
         cities = api.get_existing_cities()
@@ -169,27 +173,17 @@ def registration_func(update, context, employee: Employee):
             if text == city['title']:
                 employee.city = int(city['id'])
                 employee.save()
-        ask(employee, get_next_empty_field(employee), context)
-        return
+        if ask(employee, get_next_empty_field(employee), context):
+            return
 
     if employee.password is None:
         password = text
         if len(password) < 8:
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['password_invalid'][employee.language])
-        else:
-            employee.password = password
-            employee.save()
-            try:
-                employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
-                                  employee.password, employee.token)
-                employee.save()
-                context.bot.send_message(chat_id=chat.id,
-                                         text=translates['successful_registration'][employee.language])
-
-            except RegistrationFailedException:
-                context.bot.send_message(chat_id=chat.id,
-                                         text=translates['registration_failed'][employee.language])
+            return
+        employee.password = password
+        employee.save()
         return
 
 
