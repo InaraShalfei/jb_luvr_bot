@@ -165,7 +165,12 @@ def registration_func(update, context, employee: Employee):
             return
 
     if employee.full_name is None:
-        employee.full_name = text
+        name = text
+        if 2 > len(name) > 100:
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['name_invalid'][employee.language])
+            return
+        employee.full_name = name
         employee.save()
         if ask(employee, get_next_empty_field(employee), context):
             return
@@ -193,7 +198,7 @@ def registration_func(update, context, employee: Employee):
 
     if employee.password is None:
         password = text
-        if len(password) < 8:
+        if len(password) < 6:
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['password_invalid'][employee.language])
             return
