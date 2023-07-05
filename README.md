@@ -10,6 +10,8 @@ sudo nano /etc/systemd/system/celeryworker2.service
 
 Install docker:
 https://docs.docker.com/engine/install/ubuntu/
+Don't forget about post_installation
+https://docs.docker.com/engine/install/linux-postinstall/
 
 Run container:
 sudo docker run -d -p 5672:5672 bitnami/rabbitmq:latest
