@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from .dictionaries import translates
 from .exceptions import VerificationFailedException, RegistrationFailedException
 from .jumisbar_api import JumisGo
-from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest
+from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest, Vacancy
 from geopy.distance import geodesic as GD
 from django.db.models import Q
 
@@ -243,33 +243,36 @@ def notify_about_vacancies(bot):
     channels = {'Кассир': '@kassir_jumisbar', 'Продавец': '@prodavets_jumisbar'}
     vacancies = api.get_vacancies()
     for vacancy in vacancies:
-        # TODO check if id in DB already - continue
-        # TODO add vacancy to db by id
-        branch = vacancy['branch_description']
-        address = vacancy['branch_address']
-        position = vacancy['title']
-        rate = vacancy['rate_hour']
-        address = f'{branch} - {address}\n📌{position}\n'
-        salary = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot'
+        vacancy_id = vacancy['branch_address']
+        if Vacancy.objects.filter(vacancy_id=vacancy_id).exists():
+            continue
+        else:
+            branch = vacancy['branch_description']
+            address = vacancy['branch_address']
+            position = vacancy['title']
+            rate = vacancy['rate_hour']
+            Vacancy.objects.create(vacancy_id=vacancy_id, vacancy_name=position)
+            address = f'{branch} - {address}\n📌{position}\n'
+            salary = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot'
 
-        shifts = {}
-        schedule = vacancy['schedules']
-        for shift in schedule:
-            shift_start = shift['start_at']
-            shift_end = shift['finish_at']
-            key = f'{shift_start} - {shift_end}'
-            if key not in shifts:
-                shifts[key] = []
-            shifts[key].append(shift['date'])
-        for shift_time, dates in shifts.items():
-            sorted_dates = sorted(dates)
-            shift_start_date = datetime.datetime.strptime(sorted_dates[0], '%Y-%m-%d')
-            shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
-            shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
-            shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
-            if position in channels:
-                bot.send_message(chat_id=channels[position],
-                                 text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
+            shifts = {}
+            schedule = vacancy['schedules']
+            for shift in schedule:
+                shift_start = shift['start_at']
+                shift_end = shift['finish_at']
+                key = f'{shift_start} - {shift_end}'
+                if key not in shifts:
+                    shifts[key] = []
+                shifts[key].append(shift['date'])
+            for shift_time, dates in shifts.items():
+                sorted_dates = sorted(dates)
+                shift_start_date = datetime.datetime.strptime(sorted_dates[0], '%Y-%m-%d')
+                shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
+                shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
+                shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
+                if position in channels:
+                    bot.send_message(chat_id=channels[position],
+                                     text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
 
 
 def start(update, context):
