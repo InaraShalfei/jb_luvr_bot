@@ -1,9 +1,10 @@
 import datetime
+import math
 import os
 import re
 import sys
 
-
+import numpy as np
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from dotenv import load_dotenv
@@ -98,9 +99,10 @@ def registration_func(update, context, employee: Employee):
             cities = api.get_existing_cities()
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['cities'][employee.language],
-                                     reply_markup=ReplyKeyboardMarkup([[city['title'] for city in cities]],
-                                                                      resize_keyboard=True,
-                                                                      one_time_keyboard=True)
+                                     reply_markup=ReplyKeyboardMarkup(
+                                         np.array_split([city['title'] for city in cities], math.ceil(len(cities)/3)),
+                                         resize_keyboard=True,
+                                         one_time_keyboard=True)
                                      )
         return
 
@@ -137,6 +139,9 @@ def registration_func(update, context, employee: Employee):
 
 def main_func(update, context):
     chat = update.effective_chat
+    if chat.id < 0:
+        return
+    print(update)
     employee, created = Employee.objects.get_or_create(chat_id=chat.id)
 
     if employee.jumis_go_user_id is None:
