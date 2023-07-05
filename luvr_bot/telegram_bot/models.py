@@ -112,7 +112,7 @@ class Employee(models.Model):
     phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
     language = models.CharField(max_length=50, verbose_name='язык', blank=True, null=True)
     jumis_go_user_id = models.IntegerField(verbose_name='ID в Jumis Go', blank=True, null=True)
-    chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
+    chat_id = models.BigIntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=300, verbose_name='ФИО сотрудника', null=True, blank=True)
     current_job_request = models.ForeignKey(JobRequest, on_delete=models.CASCADE, null=True, blank=True, verbose_name='текущая заявка')
