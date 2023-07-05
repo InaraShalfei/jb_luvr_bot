@@ -239,13 +239,44 @@ def main_func(update, context):
     return
 
 
+def notify_about_vacancies(bot):
+    channels = {'Кассир': '@kassir_jumisbar', 'Продавец': '@prodavets_jumisbar'}
+    vacancies = api.get_vacancies()
+    for vacancy in vacancies:
+        # TODO check if id in DB already - continue
+        # TODO add vacancy to db by id
+        branch = vacancy['branch_description']
+        address = vacancy['branch_address']
+        position = vacancy['title']
+        rate = vacancy['rate_hour']
+        address = f'{branch} - {address}\n📌{position}\n'
+        salary = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot'
+
+        shifts = {}
+        schedule = vacancy['schedules']
+        for shift in schedule:
+            shift_start = shift['start_at']
+            shift_end = shift['finish_at']
+            key = f'{shift_start} - {shift_end}'
+            if key not in shifts:
+                shifts[key] = []
+            shifts[key].append(shift['date'])
+        for shift_time, dates in shifts.items():
+            sorted_dates = sorted(dates)
+            shift_start_date = datetime.datetime.strptime(sorted_dates[0], '%Y-%m-%d')
+            shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
+            shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
+            shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
+            if position in channels:
+                bot.send_message(chat_id=channels[position],
+                                 text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
+
+
 def start(update, context):
     chat = update.effective_chat
     name = update.message.chat.first_name
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-    channels_dict = {'Кассир': '@kassir_jumisbar', 'Продавец': '@prodavets_jumisbar'}
-    api = JumisGo('https://admin.jumisgo.kz')
-    api.get_vacancies(context.bot, channels_dict)
+    notify_about_vacancies(context.bot)
     main_func(update, context)
 
 
