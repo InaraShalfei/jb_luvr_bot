@@ -110,7 +110,7 @@ class JobRequest(models.Model):
 
 class Employee(models.Model):
     phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
-    language = models.CharField(unique=True, max_length=50, verbose_name='язык', blank=True, null=True)
+    language = models.CharField(max_length=50, verbose_name='язык', blank=True, null=True)
     jumis_go_user_id = models.IntegerField(verbose_name='ID в Jumis Go', blank=True, null=True)
     chat_id = models.IntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
     INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
@@ -119,8 +119,8 @@ class Employee(models.Model):
     job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
     message_status = models.CharField(max_length=300, blank=True, null=True, verbose_name='статус опроса')
     token = models.IntegerField(verbose_name='токен', blank=True, null=True)
-    password = models.CharField(unique=True, max_length=50, verbose_name='пароль', blank=True, null=True)
-    city = models.IntegerField(unique=True, verbose_name='город', blank=True, null=True)
+    password = models.CharField(max_length=50, verbose_name='пароль', blank=True, null=True)
+    city = models.IntegerField(verbose_name='город', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Сотрудник'
