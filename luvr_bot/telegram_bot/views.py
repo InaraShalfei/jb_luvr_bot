@@ -186,6 +186,22 @@ def registration_func(update, context, employee: Employee):
         employee.save()
         return
 
+    if get_next_empty_field(employee) is None and employee.jumis_go_user_id is None:
+        try:
+            employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
+                                                          employee.password, employee.token, employee.INN)
+            employee.save()
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['successful_registration'][employee.language])
+
+        except RegistrationFailedException as e:
+            print(e.args[0]['errors'])
+            # for error in errors
+            #   if error == 'name': employee.name = None, send_message(name is incorrect)
+            context.bot.send_message(chat_id=chat.id,
+                                     text=translates['registration_failed'][employee.language])
+            ask(employee, get_next_empty_field(employee), context)
+
 
 def main_func(update, context):
     chat = update.effective_chat
