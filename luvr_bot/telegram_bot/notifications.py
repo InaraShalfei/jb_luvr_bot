@@ -118,30 +118,35 @@ def send_shifts_end_missing_reminder():
 
 
 def notify_about_vacancies():
+    # channels = {
+    #     'Продавец': 'https://t.me/+crT4-riWQFI1MjYy',
+    #     'Грузчик': 'https://t.me/+7oIiSSoBxU81NmY6',
+    #     'Кассир': 'https://t.me/+Z-Bx_3ESYjhmYzYy',
+    #     'Кондитер': 'https://t.me/+D3PWC-k5-hBhNjYy',
+    #     'Повар': 'https://t.me/+Rn5pr75Xf3NlMDU6',
+    #     'Пекарь': 'https://t.me/+sg4QDVzwVhRjMmIy',
+    #     'Мясник': 'https://t.me/+w2p_bMRZxyUxOWMy',
+    #     'Тележечник': 'https://t.me/+iqoes7ZCSgE4NGMy',
+    #     'Кухонный работник': 'https://t.me/+sp4KDwa099hkYWI6',
+    # }
     channels = {
-        'Продавец': 'https://t.me/+crT4-riWQFI1MjYy',
-        'Грузчик': 'https://t.me/+7oIiSSoBxU81NmY6',
-        'Кассир': 'https://t.me/+Z-Bx_3ESYjhmYzYy',
-        'Кондитер': 'https://t.me/+D3PWC-k5-hBhNjYy',
-        'Повар': 'https://t.me/+Rn5pr75Xf3NlMDU6',
-        'Пекарь': 'https://t.me/+sg4QDVzwVhRjMmIy',
-        'Мясник': 'https://t.me/+w2p_bMRZxyUxOWMy',
-        'Тележечник': 'https://t.me/+iqoes7ZCSgE4NGMy',
-        'Кухонный работник': 'https://t.me/+sp4KDwa099hkYWI6',
+        'Продавец': '@prodavets_jumisbar',
+        'Пекарь': '@pekar_jumisbar'
     }
     vacancies = api.get_vacancies()
     for vacancy in vacancies:
-        vacancy_id = vacancy['branch_address']
+        vacancy_id = vacancy['id']
         if Vacancy.objects.filter(vacancy_id=vacancy_id).exists():
             continue
         else:
-            branch = vacancy['branch_description']
-            address = vacancy['branch_address']
-            position = vacancy['title']
-            rate = vacancy['rate_hour']
+            branch = vacancy['branch_description'] if vacancy['branch_description'] else ''
+            address = vacancy['branch_address'] if vacancy['branch_address'] else ''
+            position = vacancy['title'] if vacancy['title'] else ''
+            print(position)
+            rate = vacancy['rate_hour'] if vacancy['rate_hour'] else ''
             Vacancy.objects.create(vacancy_id=vacancy_id, vacancy_name=position)
             address = f'{branch} - {address}\n📌{position}\n'
-            salary = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot'
+            salary = f'✅Оплата: {rate} тнг/час\nhttp://t.me/jb_luvr_bot?start=vacancy{vacancy_id}'
 
             shifts = {}
             schedule = vacancy['schedules']
@@ -152,12 +157,19 @@ def notify_about_vacancies():
                 if key not in shifts:
                     shifts[key] = []
                 shifts[key].append(shift['date'])
+                print('sent')
             for shift_time, dates in shifts.items():
                 sorted_dates = sorted(dates)
                 shift_start_date = datetime.datetime.strptime(sorted_dates[0], '%Y-%m-%d')
                 shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
                 shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
                 shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
+                print('sent')
                 if position in channels:
                     bot.send_message(chat_id=channels[position],
                                      text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
+
+            print('sent')
+
+
+        
