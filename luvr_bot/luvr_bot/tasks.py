@@ -23,9 +23,10 @@ from telegram_bot.notifications import notify_about_vacancies, send_shifts_start
 # def notify_shift_end_absent():
 #     send_shifts_end_missing_reminder()
 #
-# @app.task
+@app.task
 def notify_about_existing_vacancies():
     notify_about_vacancies()
+    print('sent')
 
 
 app.conf.beat_schedule = {
@@ -49,9 +50,10 @@ app.conf.beat_schedule = {
     #     'schedule': 60.0,
     #     'args': ()
     # },
-    'notify_about_vacancies': {
-        'task': 'luvr_bot.tasks.notify_about_vacancies',
-        'schedule': crontab(minute=0, hour=8),
+    'notify_about_existing_vacancies': {
+        'task': 'luvr_bot.tasks.notify_about_existing_vacancies',
+        # 'schedule': crontab(minute=0, hour=8),
+        'schedule': 60.0,
         'args': ()
     },
 }
