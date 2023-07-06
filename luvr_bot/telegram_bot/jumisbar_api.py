@@ -1,5 +1,3 @@
-import datetime
-
 import requests as requests
 
 from .exceptions import VerificationFailedException, RegistrationFailedException
@@ -64,17 +62,26 @@ class JumisGo:
         if response.status_code != 200:
             raise VerificationFailedException
 
-    def user_register(self, name, phone, city, password, token):
+    def user_register(self, name, phone, city, password, token, iin):
         url = self.host + '/api/auth/register'
         data = {
             'name': name,
             'phone': phone,
             'city_id': city,
             'password': password,
-            'disability_group': False,
             'password_confirmation': password,
-            'token': token
+            'token': token,
+            'doc_iin': iin
         }
+        # data = {
+        #     'name': '12',
+        #     'phone': phone,
+        #     'city_id': city,
+        #     'password': '1',
+        #     'doc_iin': '000000000000',
+        #     'password_confirmation': '1',
+        #     'token': token
+        # }
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
