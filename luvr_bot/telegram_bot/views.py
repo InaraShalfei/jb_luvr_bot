@@ -214,6 +214,7 @@ def registration_func(update, context, employee: Employee):
             employee.save()
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['successful_registration'][employee.language])
+            return
 
         except RegistrationFailedException as e:
             context.bot.send_message(chat_id=chat.id,
@@ -248,6 +249,7 @@ def start(update, context):
         vacancy_id = int(text.replace('/start vacancy', ''))
         print(vacancy_id)
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
+    context.bot.send_message(chat_id=-967759736, text=f'asd')
     main_func(update, context)
 
 

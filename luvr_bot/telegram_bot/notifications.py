@@ -1,6 +1,8 @@
 import datetime
 import os
 
+import requests
+
 from . import constants
 from .jumisbar_api import JumisGo
 from .models import JobRequest, Vacancy
@@ -129,9 +131,9 @@ def notify_about_vacancies():
     #     'Тележечник': 'https://t.me/+iqoes7ZCSgE4NGMy',
     #     'Кухонный работник': 'https://t.me/+sp4KDwa099hkYWI6',
     # }
-    channels = {
+    groups = {
         'Продавец': '@prodavets_jumisbar',
-        'Пекарь': '@pekar_jumisbar'
+        'Пекарь': '-967759736'
     }
     vacancies = api.get_vacancies()
     for vacancy in vacancies:
@@ -165,8 +167,14 @@ def notify_about_vacancies():
                 shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
                 shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
                 print('sent')
-                if position in channels:
-                    bot.send_message(chat_id=channels[position],
+                groups_id = []
+                for token in groups.values():
+                    response = requests.get(f'https://api.telegram.org/bot{token}/sendMessage')
+                    group_id = response.json()['chat_id']
+                    groups_id.append(group_id)
+
+                if position in groups:
+                    bot.send_message(chat_id=groups[position],
                                      text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
 
             print('sent')
