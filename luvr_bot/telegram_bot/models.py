@@ -121,7 +121,7 @@ class JobRequest(models.Model):
 
 
 class Employee(models.Model):
-    phone_number = models.CharField(unique=True, max_length=11, verbose_name='номер телефона')
+    phone_number = models.CharField(max_length=11, verbose_name='номер телефона')
     language = models.CharField(max_length=50, verbose_name='язык', blank=True, null=True)
     jumis_go_user_id = models.IntegerField(verbose_name='ID в Jumis Go', blank=True, null=True)
     chat_id = models.BigIntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
