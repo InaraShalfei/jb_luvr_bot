@@ -243,8 +243,11 @@ def main_func(update, context):
 def start(update, context):
     chat = update.effective_chat
     name = update.message.chat.first_name
+    text: str = update.message.text
+    if text.startswith('/start vacancy'):
+        vacancy_id = int(text.replace('/start vacancy', ''))
+        print(vacancy_id)
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-    # notify_about_vacancies(context.bot)
     main_func(update, context)
 
 
