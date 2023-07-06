@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from .dictionaries import translates
 from .exceptions import VerificationFailedException, RegistrationFailedException
 from .jumisbar_api import JumisGo
-from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest, Vacancy
+from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest, Vacancy, EmployeeList
 from geopy.distance import geodesic as GD
 from django.db.models import Q
 
@@ -217,6 +217,7 @@ def registration_func(update, context, employee: Employee):
             return
 
         except RegistrationFailedException as e:
+            #TODO check this code (failure messages don't come independentlly)
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['registration_failed'][employee.language])
             print(e.args[0]['errors'])
@@ -226,6 +227,11 @@ def registration_func(update, context, employee: Employee):
                     send_error_message(context, error, employee)
             ask(employee, get_next_empty_field(employee), context)
             return
+
+    if employee.jumis_go_user_id and EmployeeList.objects.filter(inn=employee.INN).exists():
+        context.bot.send_message(chat_id=chat.id,
+                                 text='Вы прошли обучение!')
+        return
 
 
 def main_func(update, context):
