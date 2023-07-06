@@ -15,3 +15,4 @@ https://docs.docker.com/engine/install/linux-postinstall/
 
 Run container:
 sudo docker run -d -p 5672:5672 bitnami/rabbitmq:latest
+kill all containers: sudo docker rm -f $(docker ps -aq)
