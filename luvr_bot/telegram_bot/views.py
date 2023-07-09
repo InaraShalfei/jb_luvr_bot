@@ -32,7 +32,7 @@ EMPLOYEE_PASSWORD = 'password'
 api = JumisGo('https://admin.jumisgo.kz')
 
 
-def send_error_message(context, error, employee:Employee):
+def process_registration_error(context, error, employee: Employee):
     error_employee_field_dict = {
         'name': employee.full_name,
         'password': employee.password,
@@ -224,7 +224,7 @@ def registration_func(update, context, employee: Employee):
             if 'errors' in e.args[0]:
                 errors = e.args[0]['errors']
                 for error in errors:
-                    send_error_message(context, error, employee)
+                    process_registration_error(context, error, employee)
             ask(employee, get_next_empty_field(employee), context)
             return
 
