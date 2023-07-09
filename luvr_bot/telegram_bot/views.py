@@ -214,6 +214,9 @@ def registration_func(update, context, employee: Employee):
             employee.save()
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['successful_registration'][employee.language])
+            if EmployeeList.objects.filter(inn=employee.INN).exists(): # TODO rename EmployeeList into Training
+                print(EmployeeList.objects.filter(inn=employee.INN).exists())
+                context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
             return
 
         except RegistrationFailedException as e:
@@ -228,10 +231,6 @@ def registration_func(update, context, employee: Employee):
             ask(employee, get_next_empty_field(employee), context)
             return
 
-    if employee.jumis_go_user_id and EmployeeList.objects.filter(inn=employee.INN).exists():
-        context.bot.send_message(chat_id=chat.id,
-                                 text='Вы прошли обучение!')
-        return
 
 
 def main_func(update, context):
