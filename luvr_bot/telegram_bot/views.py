@@ -34,17 +34,17 @@ api = JumisGo('https://admin.jumisgo.kz')
 
 def process_registration_error(context, error, employee: Employee):
     error_employee_field_dict = {
-        'name': employee.full_name,
-        'password': employee.password,
-        'doc_iin': employee.INN,
-        'token': employee.token,
-        'city_id': employee.city,
-        'phone': employee.phone_number
+        'name': 'full_name',
+        'password': 'password',
+        'doc_iin': 'INN', # TODO rename to IIN
+        'token': 'token',
+        'city_id': 'city',
+        'phone': 'phone_number'
     }
     # todo if error in error_employee_field_dict
     context.bot.send_message(chat_id=employee.chat_id,
                              text=translates[f'{error}_failed'][employee.language])
-    error_employee_field_dict[error] = None
+    setattr(employee, error_employee_field_dict[error], None)
     employee.save()
 
 
@@ -219,7 +219,6 @@ def registration_func(update, context, employee: Employee):
                 print(EmployeeList.objects.filter(inn=employee.INN).exists())
                 context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
             return
-
         except RegistrationFailedException as e:
             #TODO check this code (failure messages don't come independentlly)
             context.bot.send_message(chat_id=chat.id,
