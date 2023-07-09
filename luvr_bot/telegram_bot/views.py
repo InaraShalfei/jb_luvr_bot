@@ -41,6 +41,7 @@ def process_registration_error(context, error, employee: Employee):
         'city_id': employee.city,
         'phone': employee.phone_number
     }
+    # todo if error in error_employee_field_dict
     context.bot.send_message(chat_id=employee.chat_id,
                              text=translates[f'{error}_failed'][employee.language])
     error_employee_field_dict[error] = None
@@ -234,6 +235,7 @@ def registration_func(update, context, employee: Employee):
 
 
 def main_func(update, context):
+    # TODO write json-encoded update.message into log file (which should be added into gitignore)
     chat = update.effective_chat
     if chat.id < 0:
         return
