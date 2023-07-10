@@ -18,7 +18,7 @@ bot = Bot(token=token)
 
 class Vacancy(models.Model):
     vacancy_id = models.IntegerField(unique=True, verbose_name='id вакансии')
-    vacancy_name = models.CharField(max_length=300,  verbose_name='долгота', blank=True, null=True)
+    vacancy_name = models.CharField(max_length=300,  verbose_name='название вакансии', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Вакансия'
@@ -152,7 +152,7 @@ class Employee(models.Model):
             raise ValidationError('ИИН должен быть 12 цифр')
 
 
-class EmployeeList(models.Model):
+class Training(models.Model):
     full_name = models.CharField(max_length=100, verbose_name='ФИО', blank=True, null=True)
     inn = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
 

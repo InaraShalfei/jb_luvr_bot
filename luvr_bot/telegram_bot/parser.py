@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
 
-from .models import EmployeeList
+from .models import Training
 
 
 @csrf_exempt
@@ -19,9 +19,9 @@ def parse(request):
     df = df.replace(np.nan, None)
 
     for line in df.to_dict('records'):
-        employee = EmployeeList.objects.filter(inn=line['ИИН'])
+        employee = Training.objects.filter(inn=line['ИИН'])
         if employee:
             employee.update(full_name=line['Имя'], inn=line['ИИН'])
         else:
-            EmployeeList.objects.create(full_name=line['Имя'], inn=line['ИИН'])
+            Training.objects.create(full_name=line['Имя'], inn=line['ИИН'])
     return HttpResponse('OK')
