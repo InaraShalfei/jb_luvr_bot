@@ -36,16 +36,19 @@ def process_registration_error(context, error, employee: Employee):
     error_employee_field_dict = {
         'name': 'full_name',
         'password': 'password',
-        'doc_iin': 'IIN', # TODO rename to IIN
+        'doc_iin': 'IIN',
         'token': 'token',
         'city_id': 'city',
         'phone': 'phone_number'
     }
-    # todo if error in error_employee_field_dict
-    context.bot.send_message(chat_id=employee.chat_id,
-                             text=translates[f'{error}_failed'][employee.language])
-    setattr(employee, error_employee_field_dict[error], None)
-    employee.save()
+    if error in error_employee_field_dict:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates[f'{error}_failed'][employee.language])
+        setattr(employee, error_employee_field_dict[error], None)
+        employee.save()
+    else:
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=translates['unknown_error'][employee.language])
 
 
 def get_next_empty_field(employee: Employee):
