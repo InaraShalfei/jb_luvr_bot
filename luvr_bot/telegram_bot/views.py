@@ -39,7 +39,7 @@ def process_registration_error(context, error, employee: Employee):
         'doc_iin': 'IIN',
         'token': 'token',
         'city_id': 'city',
-        'phone': 'phone_number'
+        # 'phone': 'phone_number'
     }
     if error in error_employee_field_dict:
         context.bot.send_message(chat_id=employee.chat_id,
@@ -209,28 +209,26 @@ def registration_func(update, context, employee: Employee):
             return
         employee.password = password
         employee.save()
-        return
-
-    if get_next_empty_field(employee) is None and employee.jumis_go_user_id is None:
-        try:
-            employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
-                                                          employee.password, employee.token, employee.IIN)
-            employee.save()
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['successful_registration'][employee.language])
-            if Training.objects.filter(iin=employee.IIN).exists():
-                context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
-            return
-        except RegistrationFailedException as e:
-            context.bot.send_message(chat_id=chat.id,
-                                     text=translates['registration_failed'][employee.language])
-            print(e.args[0]['errors'])
-            if 'errors' in e.args[0]:
-                errors = e.args[0]['errors']
-                for error in errors:
-                    process_registration_error(context, error, employee)
-            ask(employee, get_next_empty_field(employee), context)
-            return
+        if get_next_empty_field(employee) is None and employee.jumis_go_user_id is None:
+            try:
+                employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
+                                                              employee.password, employee.token, employee.IIN)
+                employee.save()
+                context.bot.send_message(chat_id=chat.id,
+                                         text=translates['successful_registration'][employee.language])
+                if Training.objects.filter(iin=employee.IIN).exists():
+                    context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
+                return
+            except RegistrationFailedException as e:
+                context.bot.send_message(chat_id=chat.id,
+                                         text=translates['registration_failed'][employee.language])
+                print(e.args[0]['errors'])
+                if 'errors' in e.args[0]:
+                    errors = e.args[0]['errors']
+                    for error in errors:
+                        process_registration_error(context, error, employee)
+                ask(employee, get_next_empty_field(employee), context)
+                return
 
 
 def main_func(update, context):
