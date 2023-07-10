@@ -231,8 +231,9 @@ def registration_func(update, context, employee: Employee):
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['successful_registration'][employee.language])
                 if Training.objects.filter(iin=employee.IIN).exists():
+                    vacancy = api.get_vacancy(employee.vacancy_id_draft)
                     context.bot.send_message(chat_id=employee.chat_id,
-                                             text='Вы точно хотите откликнуться на эту вакансию?',
+                                             text=f'Вы точно хотите откликнуться на эту вакансию {vacancy["title"]}?',
                                              reply_markup=ReplyKeyboardMarkup([['Да'], ['Нет']], resize_keyboard=True,
                                                                               one_time_keyboard=True))
                     vacancy_accept_func(update, context, employee)
@@ -262,7 +263,9 @@ def main_func(update, context):
     if employee.jumis_go_user_id is None:
         return registration_func(update, context, employee)
     elif Training.objects.filter(iin=employee.IIN).exists() and employee.jumis_go_user_id and employee.vacancy_id_draft:
-        context.bot.send_message(chat_id=employee.chat_id, text='Вы точно хотите откликнуться на эту вакансию?',
+        vacancy = api.get_vacancy(employee.vacancy_id_draft)
+        context.bot.send_message(chat_id=employee.chat_id,
+                                 text=f'Вы точно хотите откликнуться на эту вакансию {vacancy["title"]}?',
                                  reply_markup=ReplyKeyboardMarkup([['Да'], ['Нет']], resize_keyboard=True,
                                                                   one_time_keyboard=True))
         return vacancy_accept_func(update, context, employee)

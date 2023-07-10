@@ -40,7 +40,7 @@ class JumisGo:
     def get_vacancy(self, id):
         url = self.host + f'/api/vacancy/get/?id={id}'
         response = requests.get(url)
-        return response.json()
+        return response.json()['data'][0]
 
     def get_user_id_by_phone(self, phone):
         url = self.host + f'/api/auth/check/phone?phone={phone}'
