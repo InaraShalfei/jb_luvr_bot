@@ -4,3 +4,7 @@ class VerificationFailedException(BaseException):
 
 class RegistrationFailedException(BaseException):
     pass
+
+
+class UnauthorizedNeedToCreateException(BaseException):
+    pass
