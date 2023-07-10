@@ -1,6 +1,6 @@
 import requests as requests
 
-from .exceptions import VerificationFailedException, RegistrationFailedException
+from .exceptions import VerificationFailedException, RegistrationFailedException, UnauthorizedNeedToCreateException
 
 
 def post_request_proxy(url, json, headers=None):
@@ -22,6 +22,7 @@ def get_request_proxy(url, headers=None):
 class JumisGo:
     def __init__(self, host):
         self.host = host
+        self.token = None
 
     def get_vacancies(self):
         current_page = 1
@@ -35,6 +36,11 @@ class JumisGo:
             vacancies = response.json()['data']
             vacancies_to_notify.extend(vacancies)
         return vacancies_to_notify
+
+    def get_vacancy(self, id):
+        url = self.host + f'/api/vacancy/get/?id={id}'
+        response = requests.get(url)
+        return response.json()
 
     def get_user_id_by_phone(self, phone):
         url = self.host + f'/api/auth/check/phone?phone={phone}'
@@ -73,15 +79,6 @@ class JumisGo:
             'token': token,
             'doc_iin': iin
         }
-        # data = {
-        #     'name': '12',
-        #     'phone': phone,
-        #     'city_id': city,
-        #     'password': '1',
-        #     'doc_iin': '000000000000',
-        #     'password_confirmation': '1',
-        #     'token': token
-        # }
         headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
@@ -92,9 +89,26 @@ class JumisGo:
         return response.json()
 
     def accept_vacancy(self, vacancy_id):
+        if self.token is None:
+            raise UnauthorizedNeedToCreateException
         url = self.host + '/api/employee/vacancy/accept'
         data = {'vacancy_id': vacancy_id}
-        response = post_request_proxy(url, json=data)
+        headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.token}'
+        }
+        response = post_request_proxy(url, json=data, headers=headers)
         return response.json()
 
+    def login(self, phone_number, password):
+        url = self.host + '/api/auth/login'
+        data = {'phone': phone_number, 'password': password}
+        response = post_request_proxy(url, json=data)
+        self.token = response.json()['access_token']
+        return
+
+    def logout(self):
+        self.token = None
+        return
 
