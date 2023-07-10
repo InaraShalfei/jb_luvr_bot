@@ -74,7 +74,7 @@ class JobRequest(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='job_requests', verbose_name='филиал')
     personalized_request = models.BooleanField(blank=True, null=True, default=False, verbose_name='именная заявка')
     employee_full_name = models.CharField(max_length=300, blank=True, null=True, verbose_name='ФИО сотрудника')
-    INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
+    IIN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     status = models.CharField(max_length=250, choices=STATUSES, blank=True, null=True, verbose_name='статус заявки',
                               default='NEW')
     employee_position = models.CharField(choices=POSITIONS, blank=True, null=True, max_length=300, verbose_name='должность')
@@ -125,7 +125,7 @@ class Employee(models.Model):
     language = models.CharField(max_length=50, verbose_name='язык', blank=True, null=True)
     jumis_go_user_id = models.IntegerField(verbose_name='ID в Jumis Go', blank=True, null=True)
     chat_id = models.BigIntegerField(verbose_name='ID телеграм чата', blank=True, null=True)
-    INN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
+    IIN = models.CharField(max_length=12, verbose_name='ИНН сотрудника', null=True, blank=True)
     full_name = models.CharField(max_length=300, verbose_name='ФИО сотрудника', null=True, blank=True)
     current_job_request = models.ForeignKey(JobRequest, on_delete=models.CASCADE, null=True, blank=True, verbose_name='текущая заявка')
     job_request_draft = models.JSONField(blank=True, null=True, verbose_name='драфт смен')
@@ -146,15 +146,15 @@ class Employee(models.Model):
             raise ValidationError('Не допускаются другие элементы, кроме цифр')
         elif len(self.phone_number) < 11:
             raise ValidationError('Номер не должен быть менее 11 цифр')
-        elif not str(self.INN).isdigit():
+        elif not str(self.IIN).isdigit():
             raise ValidationError('Не допускаются другие элементы, кроме цифр')
-        elif len(self.INN) < 12:
+        elif len(self.IIN) < 12:
             raise ValidationError('ИИН должен быть 12 цифр')
 
 
 class Training(models.Model):
     full_name = models.CharField(max_length=100, verbose_name='ФИО', blank=True, null=True)
-    inn = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
+    iin = models.CharField(max_length=12, verbose_name='ИИН', blank=True, null=True)
 
     def __str__(self):
         return self.full_name
@@ -253,8 +253,8 @@ class ProxyShift(Shift):
         return self.assignment.employee.full_name
 
     @admin.display(description='ИИН')
-    def readable_inn(self):
-        return self.assignment.employee.INN
+    def readable_iin(self):
+        return self.assignment.employee.IIN
 
     @admin.display(description='функция')
     def readable_position(self):

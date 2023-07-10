@@ -33,7 +33,7 @@ class BranchInline(admin.TabularInline):
 
 
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'language', 'jumis_go_user_id', 'token', 'password', 'chat_id', 'INN', 'full_name',
+    list_display = ('phone_number', 'language', 'jumis_go_user_id', 'token', 'password', 'chat_id', 'IIN', 'full_name',
                     'city')
     inlines = [JobRequestAssignmentInline]
     readonly_fields = ['chat_id']
@@ -55,7 +55,7 @@ class BranchAdmin(admin.ModelAdmin):
 
 
 class JobRequestAdmin(admin.ModelAdmin):
-    list_display = ('branch', 'employee_position', 'request_type', 'INN', 'employee_full_name', 'personalized_request',
+    list_display = ('branch', 'employee_position', 'request_type', 'IIN', 'employee_full_name', 'personalized_request',
                     'date_start', 'date_end', 'shift_time_start', 'shift_time_end', 'number_of_employees',
                     'request_comment', 'status', 'request_date', 'readable_broadcast')
     inlines = [JobRequestAssignmentInline]
@@ -154,7 +154,7 @@ class ProxyShiftModelResource(ModelResource):
         return shift.readable_position()
 
     def dehydrate_iin(self, shift):
-        return shift.readable_inn()
+        return shift.readable_iin()
 
     def dehydrate_company(self, shift):
         return shift.readable_company()
@@ -201,13 +201,13 @@ class ProxyShiftModelResource(ModelResource):
     class Meta:
         model = ProxyShift
         exclude = ('id', )
-        fields = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company',
+        fields = ('readable_employee', 'readable_position', 'readable_iin', 'readable_company',
                   'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
                   'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date',)
 
 
 class ProxyShiftAdmin(ExportActionMixin, admin.ModelAdmin):
-    list_display = ('readable_employee', 'readable_position', 'readable_inn', 'readable_company',
+    list_display = ('readable_employee', 'readable_position', 'readable_iin', 'readable_company',
                     'readable_planned_shift_start', 'readable_planned_shift_end', 'readable_branch',
                     'readable_actual_shift_start', 'readable_actual_shift_end', 'readable_date', )
     resource_class = ProxyShiftModelResource
@@ -248,7 +248,7 @@ class CustomUserAdmin(UserAdmin):
 
 
 class EmployeeListAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'inn', )
+    list_display = ('full_name', 'iin', )
 
 
 class VacancyAdmin(admin.ModelAdmin):

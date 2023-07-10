@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from .dictionaries import translates
 from .exceptions import VerificationFailedException, RegistrationFailedException
 from .jumisbar_api import JumisGo
-from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest, Vacancy, EmployeeList
+from .models import Employee, JobRequestAssignment, EmployeeGeoPosition, Shift, JobRequest, Vacancy, Training
 from geopy.distance import geodesic as GD
 from django.db.models import Q
 
@@ -25,7 +25,7 @@ EMPLOYEE_LANGUAGE = 'language'
 EMPLOYEE_PHONE_NUMBER = 'phone_number'
 EMPLOYEE_TOKEN = 'token'
 EMPLOYEE_FULL_NAME = 'full_name'
-EMPLOYEE_INN = 'INN'
+EMPLOYEE_IIN = 'IIN'
 EMPLOYEE_CITY = 'city'
 EMPLOYEE_PASSWORD = 'password'
 
@@ -36,7 +36,7 @@ def process_registration_error(context, error, employee: Employee):
     error_employee_field_dict = {
         'name': 'full_name',
         'password': 'password',
-        'doc_iin': 'INN', # TODO rename to IIN
+        'doc_iin': 'IIN', # TODO rename to IIN
         'token': 'token',
         'city_id': 'city',
         'phone': 'phone_number'
@@ -57,8 +57,8 @@ def get_next_empty_field(employee: Employee):
         return EMPLOYEE_TOKEN
     if employee.full_name is None:
         return EMPLOYEE_FULL_NAME
-    if employee.INN is None:
-        return EMPLOYEE_INN
+    if employee.IIN is None:
+        return EMPLOYEE_IIN
     if employee.city is None:
         return EMPLOYEE_CITY
     if employee.password is None:
@@ -90,9 +90,9 @@ def ask(employee: Employee, next_empty_field, context):
     elif next_empty_field == EMPLOYEE_FULL_NAME:
         context.bot.send_message(chat_id=employee.chat_id,
                                  text=translates['full_name'][employee.language])
-    elif next_empty_field == EMPLOYEE_INN:
+    elif next_empty_field == EMPLOYEE_IIN:
         context.bot.send_message(chat_id=employee.chat_id,
-                                 text=translates['inn'][employee.language])
+                                 text=translates['iin'][employee.language])
     elif next_empty_field == EMPLOYEE_CITY:
         cities = api.get_existing_cities()
         if employee.city is None:
@@ -177,14 +177,14 @@ def registration_func(update, context, employee: Employee):
         if ask(employee, get_next_empty_field(employee), context):
             return
 
-    if employee.INN is None:
+    if employee.IIN is None:
         regex = r'^(\d{12})$'
         pattern = re.compile(regex)
         if not pattern.match(text):
             context.bot.send_message(chat_id=chat.id,
-                                     text=translates['inn_incorrect'][employee.language])
+                                     text=translates['iin_incorrect'][employee.language])
             return
-        employee.INN = text
+        employee.IIN = text
         employee.save()
         if ask(employee, get_next_empty_field(employee), context):
             return
@@ -211,16 +211,14 @@ def registration_func(update, context, employee: Employee):
     if get_next_empty_field(employee) is None and employee.jumis_go_user_id is None:
         try:
             employee.jumis_go_user_id = api.user_register(employee.full_name, employee.phone_number, employee.city,
-                                                          employee.password, employee.token, employee.INN)
+                                                          employee.password, employee.token, employee.IIN)
             employee.save()
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['successful_registration'][employee.language])
-            if EmployeeList.objects.filter(inn=employee.INN).exists(): # TODO rename EmployeeList into Training
-                print(EmployeeList.objects.filter(inn=employee.INN).exists())
+            if Training.objects.filter(iin=employee.IIN).exists():
                 context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
             return
         except RegistrationFailedException as e:
-            #TODO check this code (failure messages don't come independentlly)
             context.bot.send_message(chat_id=chat.id,
                                      text=translates['registration_failed'][employee.language])
             print(e.args[0]['errors'])
@@ -230,7 +228,6 @@ def registration_func(update, context, employee: Employee):
                     process_registration_error(context, error, employee)
             ask(employee, get_next_empty_field(employee), context)
             return
-
 
 
 def main_func(update, context):

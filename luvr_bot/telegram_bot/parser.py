@@ -19,9 +19,9 @@ def parse(request):
     df = df.replace(np.nan, None)
 
     for line in df.to_dict('records'):
-        employee = Training.objects.filter(inn=line['ИИН'])
+        employee = Training.objects.filter(iin=line['ИИН'])
         if employee:
-            employee.update(full_name=line['Имя'], inn=line['ИИН'])
+            employee.update(full_name=line['Имя'], iin=line['ИИН'])
         else:
-            Training.objects.create(full_name=line['Имя'], inn=line['ИИН'])
+            Training.objects.create(full_name=line['Имя'], iin=line['ИИН'])
     return HttpResponse('OK')
