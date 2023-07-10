@@ -164,3 +164,4 @@ cython_debug/
 /.idea/vcs.xml
 /.idea/jb_luvr_bot.iml
 /luvr_bot/static/
+/luvr_bot/logs.txt

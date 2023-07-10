@@ -234,7 +234,8 @@ def registration_func(update, context, employee: Employee):
 
 
 def main_func(update, context):
-    # TODO write json-encoded update.message into log file (which should be added into gitignore)
+    with open('logs.txt', mode='a') as f:
+        f.write(update.message.text + '\n\n')
     chat = update.effective_chat
     if chat.id < 0:
         return
@@ -255,7 +256,7 @@ def start(update, context):
         vacancy_id = int(text.replace('/start vacancy', ''))
         print(vacancy_id)
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-    context.bot.send_message(chat_id=-967759736, text=f'asd')
+    # context.bot.send_message(chat_id=-967759736, text=f'asd')
     main_func(update, context)
 
 
