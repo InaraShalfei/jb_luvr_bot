@@ -133,7 +133,7 @@ def notify_about_vacancies():
     # }
     groups = {
         'Продавец': '@prodavets_jumisbar',
-        'Пекарь': '-967759736'
+        # 'Пекарь': '-967759736'
     }
     vacancies = api.get_vacancies()
     for vacancy in vacancies:
@@ -159,20 +159,12 @@ def notify_about_vacancies():
                 if key not in shifts:
                     shifts[key] = []
                 shifts[key].append(shift['date'])
-                print('sent')
             for shift_time, dates in shifts.items():
                 sorted_dates = sorted(dates)
                 shift_start_date = datetime.datetime.strptime(sorted_dates[0], '%Y-%m-%d')
                 shift_start_date = datetime.datetime.strftime(shift_start_date, '%d.%m.%Y')
                 shift_end_date = datetime.datetime.strptime(sorted_dates[-1], '%Y-%m-%d')
                 shift_end_date = datetime.datetime.strftime(shift_end_date, '%d.%m.%Y')
-                print('sent')
-                groups_id = []
-                for token in groups.values():
-                    response = requests.get(f'https://api.telegram.org/bot{token}/sendMessage')
-                    group_id = response.json()['chat_id']
-                    groups_id.append(group_id)
-
                 if position in groups:
                     bot.send_message(chat_id=groups[position],
                                      text=f'{address}🕐{shift_time}\n🔴Дата: {shift_start_date} - {shift_end_date}{salary}\n')
