@@ -133,6 +133,7 @@ class Employee(models.Model):
     token = models.IntegerField(verbose_name='токен', blank=True, null=True)
     password = models.CharField(max_length=50, verbose_name='пароль', blank=True, null=True)
     city = models.IntegerField(verbose_name='город', blank=True, null=True)
+    vacancy_id_draft = models.IntegerField(verbose_name='id вакансии', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Сотрудник'
