@@ -117,6 +117,20 @@ def arrange_buttons(buttons):
     return np.array_split(buttons, math.ceil(len(buttons) / 3))
 
 
+def vacancy_accept_func(update, context, employee):
+    text = update.message.text
+
+    if text == 'Да':
+        api.login(employee.phone_number, employee.password)
+        api.accept_vacancy(employee.vacancy_id_draft)
+        return
+    elif text == 'Нет':
+        employee.vacancy_id_draft = None
+        employee.save()
+        context.bot.send_message(chat_id=employee.chat_id, text='Вы отказались от этой вакансии. Посмотрите другие вакансии')
+    return
+
+
 def registration_func(update, context, employee: Employee):
     chat = update.effective_chat
     text = update.message.text
@@ -217,7 +231,12 @@ def registration_func(update, context, employee: Employee):
                 context.bot.send_message(chat_id=chat.id,
                                          text=translates['successful_registration'][employee.language])
                 if Training.objects.filter(iin=employee.IIN).exists():
-                    context.bot.send_message(chat_id=chat.id, text='Вы прошли обучение!')
+                    context.bot.send_message(chat_id=employee.chat_id,
+                                             text='Вы точно хотите откликнуться на эту вакансию?',
+                                             reply_markup=ReplyKeyboardMarkup([['Да'], ['Нет']], resize_keyboard=True,
+                                                                              one_time_keyboard=True))
+                    vacancy_accept_func(update, context, employee)
+
                 return
             except RegistrationFailedException as e:
                 context.bot.send_message(chat_id=chat.id,
@@ -232,8 +251,8 @@ def registration_func(update, context, employee: Employee):
 
 
 def main_func(update, context):
-    with open('logs.txt', mode='a') as f:
-        f.write(update.message.text + '\n\n')
+    # with open('logs.txt', mode='a') as f:
+    #     f.write(str(update.message.text) + '\n\n')
     chat = update.effective_chat
     if chat.id < 0:
         return
@@ -242,6 +261,11 @@ def main_func(update, context):
 
     if employee.jumis_go_user_id is None:
         return registration_func(update, context, employee)
+    elif Training.objects.filter(iin=employee.IIN).exists() and employee.jumis_go_user_id and employee.vacancy_id_draft:
+        context.bot.send_message(chat_id=employee.chat_id, text='Вы точно хотите откликнуться на эту вакансию?',
+                                 reply_markup=ReplyKeyboardMarkup([['Да'], ['Нет']], resize_keyboard=True,
+                                                                  one_time_keyboard=True))
+        return vacancy_accept_func(update, context, employee)
 
     return
 
@@ -252,9 +276,12 @@ def start(update, context):
     text: str = update.message.text
     if text.startswith('/start vacancy'):
         vacancy_id = int(text.replace('/start vacancy', ''))
+        employee, created = Employee.objects.get_or_create(chat_id=chat.id)
+        employee.vacancy_id_draft = vacancy_id
+        employee.save()
+
         print(vacancy_id)
     context.bot.send_message(chat_id=chat.id, text=f'Спасибо, что включили меня, {name}!')
-    # context.bot.send_message(chat_id=-967759736, text=f'asd')
     main_func(update, context)
 
 
