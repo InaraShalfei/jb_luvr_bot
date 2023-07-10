@@ -91,4 +91,10 @@ class JumisGo:
             raise RegistrationFailedException(response.json())
         return response.json()
 
+    def accept_vacancy(self, vacancy_id):
+        url = self.host + '/api/employee/vacancy/accept'
+        data = {'vacancy_id': vacancy_id}
+        response = post_request_proxy(url, json=data)
+        return response.json()
+
 
